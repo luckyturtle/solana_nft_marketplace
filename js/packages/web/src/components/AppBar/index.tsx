@@ -29,12 +29,12 @@ const UserActions = () => {
           </Link> */}
           {canCreate ? (
             <Link to={`/art/create`}>
-              <Button className="app-btn">Create</Button>
+              <Button className="app-btn">MINT</Button>
             </Link>
           ) : null}
           <Link to={`/auction/create/0`}>
             <Button className="connector" type="primary">
-              Sell
+              SELL
             </Button>
           </Link>
         </>
@@ -52,16 +52,22 @@ const DefaultActions = ({ vertical = false }: { vertical?: boolean }) => {
         flexDirection: vertical ? 'column' : 'row',
       }}
     >
-      <Link to={`/`}>
-        <Button className="app-btn">Explore</Button>
+      <Link to={`/roadmap`}>
+        <Button className="app-btn">ROADMAP</Button>
+      </Link>
+      <Link to={`/faq`}>
+        <Button className="app-btn">FAQ</Button>
       </Link>
       <Link to={`/artworks`}>
         <Button className="app-btn">
-          {connected ? 'My Items' : 'Artworks'}
+          {connected ? 'MY ITEM' : 'ITEMS'}
         </Button>
       </Link>
       <Link to={`/artists`}>
-        <Button className="app-btn">Creators</Button>
+        <Button className="app-btn">GALLERY</Button>
+      </Link>
+      <Link to={`/`}>
+        <Button className="app-btn">LEADERBOARD</Button>
       </Link>
     </div>
   );
@@ -82,19 +88,29 @@ const MetaplexMenu = () => {
             <Menu>
               <Menu.Item>
                 <Link to={`/`}>
-                  <Button className="app-btn">Explore</Button>
+                  <Button className="app-btn">ROADMAP</Button>
+                </Link>
+              </Menu.Item>
+              <Menu.Item>
+                <Link to={`/`}>
+                  <Button className="app-btn">FAQ</Button>
                 </Link>
               </Menu.Item>
               <Menu.Item>
                 <Link to={`/artworks`}>
                   <Button className="app-btn">
-                    {connected ? 'My Items' : 'Artworks'}
+                    {connected ? 'MY ITEM' : 'ITEMS'}
                   </Button>
                 </Link>
               </Menu.Item>
               <Menu.Item>
                 <Link to={`/artists`}>
-                  <Button className="app-btn">Creators</Button>
+                  <Button className="app-btn">GALLERY</Button>
+                </Link>
+              </Menu.Item>
+              <Menu.Item>
+                <Link to={`/`}>
+                  <Button className="app-btn">LEADERBOARD</Button>
                 </Link>
               </Menu.Item>
             </Menu>

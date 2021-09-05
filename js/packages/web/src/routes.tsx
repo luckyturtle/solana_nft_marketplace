@@ -9,7 +9,9 @@ import {
   ArtworksView,
   AuctionCreateView,
   AuctionView,
+  FaqView,
   HomeView,
+  RoadMapView,
 } from './views';
 import { AdminView } from './views/admin';
 import { BillingView } from './views/auction/billing';
@@ -54,6 +56,8 @@ export function Routes() {
               path="/auction/:id/billing"
               component={() => <BillingView />}
             />
+            <Route exact path="/faq" component={() => <FaqView />} />
+            <Route exact path="/roadmap" component={() => <RoadMapView />} />
             <Route path="/" component={() => <HomeView />} />
           </Switch>
         </Providers>
