@@ -2,7 +2,8 @@ import { Layout } from 'antd';
 import React from 'react';
 import { useStore } from '@oyster/common';
 import { useMeta } from '../../contexts';
-import { AuctionListView } from './auctionList';
+// import { AuctionListView } from './auctionList';
+import { LandingView } from './landing';
 import { SetupView } from './setup';
 
 export const HomeView = () => {
@@ -14,7 +15,7 @@ export const HomeView = () => {
   return (
     <Layout style={{ margin: 0, marginTop: 30, alignItems: 'center' }}>
       {
-      // showAuctions ? <AuctionListView /> : 
+      showAuctions ? <LandingView /> ://<AuctionListView /> : 
       <SetupView />
       }
     </Layout>

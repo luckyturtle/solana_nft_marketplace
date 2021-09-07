@@ -56,7 +56,7 @@ export const ArtCreateView = () => {
   const { width } = useWindowDimensions();
 
   const [step, setStep] = useState<number>(0);
-  const [stepsVisible, setStepsVisible] = useState<boolean>(false);//true);
+  const [stepsVisible, setStepsVisible] = useState<boolean>(true);//false);
   const [progress, setProgress] = useState<number>(0);
   const [nft, setNft] =
     useState<{ metadataAccount: StringPublicKey } | undefined>(undefined);
@@ -80,7 +80,7 @@ export const ArtCreateView = () => {
   const gotoStep = useCallback(
     (_step: number) => {
       history.push(`/art/create/${_step.toString()}`);
-      if (_step === 0) setStepsVisible(false);//true);
+      if (_step === 0) setStepsVisible(true);//false);
     },
     [history],
   );
@@ -107,7 +107,7 @@ export const ArtCreateView = () => {
         category: attributes.properties?.category,
       },
     };
-    // setStepsVisible(false);
+    setStepsVisible(false); //
     const inte = setInterval(
       () => setProgress(prog => Math.min(prog + 1, 99)),
       600,
@@ -150,7 +150,7 @@ export const ArtCreateView = () => {
           </Col>
         )}
         <Col span={24} {...(stepsVisible ? { md: 20 } : { md: 24 })}>
-          {/* {step === 0 && (
+          {step === 0 && (
             <CategoryStep
               confirm={(category: MetadataCategory) => {
                 setAttributes({
@@ -188,8 +188,8 @@ export const ArtCreateView = () => {
               confirm={() => gotoStep(4)}
               setAttributes={setAttributes}
             />
-          )} */}
-          {step <= 4 && (
+          )}
+          {step === 4 && (
             <LaunchStep
               attributes={attributes}
               files={files}
@@ -204,11 +204,11 @@ export const ArtCreateView = () => {
               confirm={() => gotoStep(6)}
             />
           )}
-          {/* {0 < step && step < 5 && (
+          {0 < step && step < 5 && (
             <div style={{ margin: 'auto', width: 'fit-content' }}>
               <Button onClick={() => gotoStep(step - 1)}>Back</Button>
             </div>
-          )} */}
+          )}
         </Col>
       </Row>
       <MetaplexOverlay visible={step === 6}>
