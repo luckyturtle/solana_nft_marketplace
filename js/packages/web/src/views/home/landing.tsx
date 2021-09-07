@@ -115,12 +115,6 @@ export const LandingView = () => {
           </div>
         </div>
       </Col>
-      <Col style={{
-        textAlign: 'center',
-        marginTop: '1rem',
-      }}>
-      SOLANA POGS: The first NFTs on Solana!
-      </Col>
       </Content>
     </>
   );

@@ -32,7 +32,7 @@ const UserActions = () => {
               <Button className="app-btn">MINT</Button>
             </Link>
           ) : null}
-          <Link to={`/auction/create/0`}>
+          <Link to={`/`}>{/*/auction/create/0`}>*/}
             <Button className="connector" type="primary">
               SELL
             </Button>

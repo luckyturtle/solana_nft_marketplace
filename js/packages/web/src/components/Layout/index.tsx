@@ -3,6 +3,7 @@ import { Layout } from 'antd';
 
 import { LABELS } from '../../constants';
 import { AppBar } from '../AppBar';
+import { Footer } from '../Footer';
 import useWindowDimensions from '../../utils/layout';
 
 const { Header, Content } = Layout;
@@ -30,6 +31,7 @@ export const AppLayout = React.memo((props: any) => {
         <Content style={{ overflow: 'scroll', paddingBottom: 50 }}>
           {props.children}
         </Content>
+        <Footer />
       </Layout>
     </>
   );
