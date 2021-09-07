@@ -1,5 +1,7 @@
+require('dotenv').config();
 const { createServer } = require("https");
 const { parse } = require("url");
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const next = require("next");
 const fs = require("fs");
