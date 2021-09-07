@@ -87,22 +87,22 @@ export const LandingView = () => {
               }}
             >
               <div className="stack-item">
-                <img className="item-img" src="http://visiontrader.chileracing.net/dist/Pogs/Backgrounds/background0.png"  />
+                <img className="item-img" src="/img/backgrounds/background0.png"  />
               </div>
               <div className="stack-item">
-                <img className="item-img" src="http://visiontrader.chileracing.net/dist/Pogs/Auras/aura4.png" />
+                <img className="item-img" src="/img/auras/aura4.png" />
               </div>
               <div className="stack-item">
-                <img className="item-img" src="http://visiontrader.chileracing.net/dist/Pogs/Pogs/pog0.png" />
+                <img className="item-img" src="/img/pogs/pog0.png" />
               </div>
               <div className="stack-item">
-                <img className="item-img" src="http://visiontrader.chileracing.net/dist/Pogs/Patterns/pattern1a.png" />
+                <img className="item-img" src="/img/patterns/pattern1a.png" />
               </div>
               <div className="stack-item">
-                <img className="item-img" src="http://visiontrader.chileracing.net/dist/Pogs/Symbols/symbol1a.png" />
+                <img className="item-img" src="/img/symbols/symbol1a.png" />
               </div>
               <div className="stack-item">
-                <img className="item-img" src="http://visiontrader.chileracing.net/dist/Pogs/Textures/texture2.png" />
+                <img className="item-img" src="/img/textures/texture2.png" />
               </div>
             </div>
           </div>

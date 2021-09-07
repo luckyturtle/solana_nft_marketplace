@@ -41,7 +41,7 @@
   },
   "scripts": {
     "prestart": "npm-link-shared ../common/node_modules/ . react",
-    "start": "next dev",
+    "start": "node server.js",
     "build": "next build",
     "export": "next export -o ../../build/web",
     "start:prod": "next start",
