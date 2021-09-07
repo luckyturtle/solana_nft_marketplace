@@ -66,8 +66,11 @@ const DefaultActions = ({ vertical = false }: { vertical?: boolean }) => {
       <Link to={`/artists`}>
         <Button className="app-btn">GALLERY</Button>
       </Link>
-      <Link to={`/`}>
+      <Link to={`/leaderboard`}>
         <Button className="app-btn">LEADERBOARD</Button>
+      </Link>
+      <Link to={`/marketplace`}>
+        <Button className="app-btn">MARKETPLACE</Button>
       </Link>
     </div>
   );
@@ -77,7 +80,7 @@ const MetaplexMenu = () => {
   const { width } = useWindowDimensions();
   const { connected } = useWallet();
 
-  if (width < 768)
+  if (width < 1166)
     return (
       <>
         <Dropdown
@@ -109,8 +112,13 @@ const MetaplexMenu = () => {
                 </Link>
               </Menu.Item>
               <Menu.Item>
-                <Link to={`/`}>
+                <Link to={`/leaderboard`}>
                   <Button className="app-btn">LEADERBOARD</Button>
+                </Link>
+              </Menu.Item>
+              <Menu.Item>
+                <Link to={`/marketplace`}>
+                  <Button className="app-btn">MARKECTPLACE</Button>
                 </Link>
               </Menu.Item>
             </Menu>
@@ -130,7 +138,10 @@ export const AppBar = () => {
   return (
     <>
       <div className="app-left app-bar-box">
-        {window.location.hash !== '#/analytics' && <Notifications />}
+        {
+          window.location.hash !== '#/analytics' &&
+          <Notifications />
+        }
         <div className="divider" />
         <MetaplexMenu />
       </div>

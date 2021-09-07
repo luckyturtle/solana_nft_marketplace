@@ -9,3 +9,4 @@ export { ArtworksView } from './artworks';
 export { AnalyticsView } from './analytics';
 export { FaqView } from './faq';
 export { RoadMapView } from './roadmap';
+export { LeaderBoardView } from './leaderboard';

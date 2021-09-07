@@ -17,12 +17,19 @@ export const SetupView = () => {
 
   return (
     <>
-      <p>
-        <Button type="primary" className="app-btn">
-          Button
-        </Button>{' '}
-        Here is FAQ.
-      </p>
+      <h1 className="art-title">
+        FAQ
+      </h1>
+      <h2>
+        General Questions
+      </h2>
+      <br />
+      <div className="info-header">Q: What is the Solarian NFT project?</div>
+      <div className="info-content">A: We are the first generative on-chain NFTs on <a>Solana</a>: Solarian robots originating from Solaria Prime.</div>
+      <br />
+      <div className="info-header">Q: How many NFTs will you sell?</div>
+      <div className="info-content">A: There will never be more than 10.000 Solarians.</div>
+      <br />
     </>
   );
 };

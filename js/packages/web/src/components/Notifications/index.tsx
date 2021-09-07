@@ -18,7 +18,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection } from '@solana/web3.js';
 import { Badge, Popover, List } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { closePersonalEscrow } from '../../actions/closePersonalEscrow';
 import { decommAuctionManagerAndReturnPrizes } from '../../actions/decommAuctionManagerAndReturnPrizes';
 import { sendSignMetadata } from '../../actions/sendSignMetadata';
@@ -304,6 +304,7 @@ export function Notifications() {
   const connection = useConnection();
   const wallet = useWallet();
   const { accountByMint } = useUserAccounts();
+  const history = useHistory();
 
   const notifications: NotificationCard[] = [];
 
@@ -485,9 +486,9 @@ export function Notifications() {
       className="noty-popover"
       placement="bottomLeft"
       content={content}
-      trigger="click"
+      trigger=""
     >
-      <h1 className="title">LOGO</h1>
+      <h1 className="title" onClick={() => {history.push(`/`)}}>LOGO</h1>
     </Popover>
   );
 

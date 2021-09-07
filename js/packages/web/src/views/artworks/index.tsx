@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ArtCard } from '../../components/ArtCard';
-import { Layout, Row, Col, Tabs } from 'antd';
+import { Layout, Row, Col, Tabs, Pagination } from 'antd';
 import Masonry from 'react-masonry-css';
 import { Link } from 'react-router-dom';
 import { useCreatorArts, useUserArts } from '../../hooks';
@@ -32,11 +32,12 @@ export const ArtworksView = () => {
   };
 
   const items =
-    activeKey === ArtworkViewState.Owned
-      ? ownedMetadata.map(m => m.metadata)
-      : activeKey === ArtworkViewState.Created
-      ? createdMetadata
-      : metadata;
+    // activeKey === ArtworkViewState.Owned
+      // ? 
+      ownedMetadata.map(m => m.metadata);
+      // : activeKey === ArtworkViewState.Created
+      // ? createdMetadata
+      // : metadata;
 
   useEffect(() => {
     if (connected) {
@@ -72,40 +73,22 @@ export const ArtworksView = () => {
   );
 
   return (
-    <Layout style={{ margin: 0, marginTop: 30 }}>
+    <Layout style={{ margin: 0, marginTop: 30, alignItems: 'center' }}>
+      <h1 className="art-title">
+        My Solana Pogs
+      </h1>
       <Content style={{ display: 'flex', flexWrap: 'wrap' }}>
         <Col style={{ width: '100%', marginTop: 10 }}>
           <Row>
-            <Tabs
-              activeKey={activeKey}
-              onTabClick={key => setActiveKey(key as ArtworkViewState)}
-            >
-              <TabPane
-                tab={<span className="tab-title">All</span>}
-                key={ArtworkViewState.Metaplex}
-              >
-                {artworkGrid}
-              </TabPane>
-              {connected && (
-                <TabPane
-                  tab={<span className="tab-title">Owned</span>}
-                  key={ArtworkViewState.Owned}
-                >
-                  {artworkGrid}
-                </TabPane>
-              )}
-              {connected && (
-                <TabPane
-                  tab={<span className="tab-title">Created</span>}
-                  key={ArtworkViewState.Created}
-                >
-                  {artworkGrid}
-                </TabPane>
-              )}
-            </Tabs>
+            {artworkGrid}
           </Row>
         </Col>
       </Content>
+      <Pagination
+        defaultCurrent={1}
+        total={200}
+        showSizeChanger={false}
+      />      
     </Layout>
   );
 };

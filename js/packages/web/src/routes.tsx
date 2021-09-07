@@ -11,6 +11,7 @@ import {
   AuctionView,
   FaqView,
   HomeView,
+  LeaderBoardView,
   RoadMapView,
 } from './views';
 import { AdminView } from './views/admin';
@@ -58,6 +59,7 @@ export function Routes() {
             />
             <Route exact path="/faq" component={() => <FaqView />} />
             <Route exact path="/roadmap" component={() => <RoadMapView />} />
+            <Route exact path="/leaderboard" component={() => <LeaderBoardView />} />
             <Route path="/" component={() => <HomeView />} />
           </Switch>
         </Providers>
