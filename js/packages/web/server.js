@@ -1,5 +1,6 @@
 const { createServer } = require("https");
 const { parse } = require("url");
+const cors = require('cors');
 const next = require("next");
 const fs = require("fs");
 const port = 3000;
@@ -11,6 +12,8 @@ const httpsOptions = {
     key: fs.readFileSync("./cert/key.pem"),
     cert: fs.readFileSync("./cert/cert.pem")
 };
+
+app.use(cors());
 
 app.prepare().then(() => {
     createServer(httpsOptions, (req, res) => {
