@@ -2,4 +2,3 @@ target
 .next
 .env.local
 /cert/*.pem
-/src/config/*.js
