@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import axios from 'axios';
 import {
   Steps,
   Row,
@@ -42,6 +43,7 @@ import { cleanName, getLast } from '../../utils/utils';
 import { AmountLabel } from '../../components/AmountLabel';
 import useWindowDimensions from '../../utils/layout';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { baseURL } from '../../config/api';
 
 const { Step } = Steps;
 const { Dragger } = Upload;
@@ -56,7 +58,7 @@ export const ArtCreateView = () => {
   const { width } = useWindowDimensions();
 
   const [step, setStep] = useState<number>(0);
-  const [stepsVisible, setStepsVisible] = useState<boolean>(true);//false);
+  const [stepsVisible, setStepsVisible] = useState<boolean>(false);//true);
   const [progress, setProgress] = useState<number>(0);
   const [nft, setNft] =
     useState<{ metadataAccount: StringPublicKey } | undefined>(undefined);
@@ -80,7 +82,7 @@ export const ArtCreateView = () => {
   const gotoStep = useCallback(
     (_step: number) => {
       history.push(`/art/create/${_step.toString()}`);
-      if (_step === 0) setStepsVisible(true);//false);
+      if (_step === 0) setStepsVisible(false);//true);
     },
     [history],
   );
@@ -107,7 +109,7 @@ export const ArtCreateView = () => {
         category: attributes.properties?.category,
       },
     };
-    setStepsVisible(false); //
+    //setStepsVisible(false); 
     const inte = setInterval(
       () => setProgress(prog => Math.min(prog + 1, 99)),
       600,
@@ -150,7 +152,7 @@ export const ArtCreateView = () => {
           </Col>
         )}
         <Col span={24} {...(stepsVisible ? { md: 20 } : { md: 24 })}>
-          {step === 0 && (
+          {/* {step === 0 && (
             <CategoryStep
               confirm={(category: MetadataCategory) => {
                 setAttributes({
@@ -188,27 +190,31 @@ export const ArtCreateView = () => {
               confirm={() => gotoStep(4)}
               setAttributes={setAttributes}
             />
-          )}
-          {step === 4 && (
+          )} */}
+          {step <= 4 && (
             <LaunchStep
               attributes={attributes}
+              setAttributes={setAttributes}
               files={files}
+              setFiles={setFiles}
               confirm={() => gotoStep(5)}
-              connection={connection}
             />
           )}
           {step === 5 && (
             <WaitingStep
               mint={mint}
+              attributes={attributes}
+              files={files}
               progress={progress}
+              connection={connection}
               confirm={() => gotoStep(6)}
             />
           )}
-          {0 < step && step < 5 && (
+          {/* {0 < step && step < 5 && (
             <div style={{ margin: 'auto', width: 'fit-content' }}>
               <Button onClick={() => gotoStep(step - 1)}>Back</Button>
             </div>
-          )}
+          )} */}
         </Col>
       </Row>
       <MetaplexOverlay visible={step === 6}>
@@ -996,17 +1002,161 @@ const RoyaltiesStep = (props: {
 const LaunchStep = (props: {
   confirm: () => void;
   attributes: IMetadataExtension;
+  setAttributes: (attr: IMetadataExtension) => void;
+  files: File[];
+  setFiles: (files: File[]) => void;
+}) => {
+  const { publicKey, connected } = useWallet();
+  const [creators, setCreators] = useState<Array<UserValue>>([]);
+  const [royalties, setRoyalties] = useState<Array<Royalty>>([]);
+  const [fixedCreators, setFixedCreators] = useState<Array<UserValue>>([]);
+  useEffect(() => {
+    if (publicKey) {
+      const key = publicKey.toBase58();
+      setFixedCreators([
+        {
+          key,
+          label: shortenAddress(key),
+          value: key,
+        },
+      ]);
+    }
+  }, [connected, setCreators]);
+  useEffect(() => {
+    setRoyalties(
+      [...fixedCreators, ...creators].map(creator => ({
+        creatorKey: creator.key,
+        amount: Math.trunc(100 / [...fixedCreators, ...creators].length),
+      })),
+    );
+  }, [creators, fixedCreators]);
+  const handlePay = () => {
+    axios.post(`${baseURL}/api/generate`).then( async (response) => {
+      console.log('success===', response)
+      const resData = response.data.result;
+      if ( resData === undefined) return;
+      else {
+        const imageUrl = `${baseURL}/${resData.image}`;
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const imageFile = new File([blob], resData.image, { type: blob.type });
+        const nftAttr = resData.attributes;
+        nftAttr.push({trait_type: 'rarity', value: resData.rarity});
+        console.log('responsed attr ---->');
+        console.log(nftAttr);
+        
+        const creatorStructs: Creator[] = [
+          ...fixedCreators,
+          ...creators,
+        ].map(
+          c =>
+            new Creator({
+              address: c.value,
+              verified: c.value === publicKey?.toBase58(),
+              share:
+                royalties.find(r => r.creatorKey === c.value)?.amount ||
+                Math.round(100 / royalties.length),
+            }),
+        );
+
+        const share = creatorStructs.reduce(
+          (acc, el) => (acc += el.share),
+          0,
+        );
+        if (share > 100 && creatorStructs.length) {
+          creatorStructs[0].share -= share - 100;
+        }
+        props.setAttributes({
+          ...props.attributes,
+          name: resData.name,
+          properties: {
+            ...props.attributes.properties,
+            category: MetadataCategory.Image,
+            files: [imageFile, undefined, undefined]
+            .filter(f => f)
+            .map(f => {
+              const uri = typeof f === 'string' ? f : f?.name || '';
+              const type =
+                typeof f === 'string' || !f
+                  ? 'unknown'
+                  : f.type || getLast(f.name.split('.')) || 'unknown';
+
+              return {
+                uri,
+                type,
+              } as MetadataFile;
+            }),
+          },
+          image: imageFile?.name || '',
+          animation_url: '',
+          creators: creatorStructs,
+          attributes: nftAttr,
+        });
+        props.setFiles([imageFile, undefined].filter(f => f) as File[]);
+
+        axios.post(`${baseURL}/api/remove`, {name: resData.image})
+        console.log('request sent to remove temp generated image -->');
+        props.confirm();
+      }
+    });
+  };
+
+  return (
+    <>
+      <Row className="call-to-action">
+        <h2>Launch your creation</h2>
+        <p>
+          Provide detailed description of your creative process to engage with
+          your audience.
+        </p>
+      </Row>
+      <Row>
+        <Button
+          type="primary"
+          size="large"
+          onClick={handlePay}
+          className="action-btn"
+        >
+          Pay with SOL
+        </Button>
+        <Button
+          disabled={true}
+          size="large"
+          onClick={handlePay}
+          className="action-btn"
+        >
+          Pay with Credit Card
+        </Button>
+      </Row>
+    </>
+  );
+};
+
+const WaitingStep = (props: {
+  mint: Function;
+  progress: number;
+  attributes: IMetadataExtension;
   files: File[];
   connection: Connection;
+  confirm: Function;
 }) => {
   const [cost, setCost] = useState(0);
   const { image, animation_url } = useArtworkFiles(
     props.files,
     props.attributes,
   );
-  const files = props.files;
-  const metadata = props.attributes;
+
   useEffect(() => {
+    const files = props.files;
+    const metadata = props.attributes;
+    console.log('generated files-->');
+    console.log(files);
+    console.log('generated metadata-->');
+    console.log(metadata);
+    console.log('generated image-->');
+    console.log(image);
+    console.log('generated anim_url-->');
+    console.log(animation_url);
     const rentCall = Promise.all([
       props.connection.getMinimumBalanceForRentExemption(MintLayout.span),
       props.connection.getMinimumBalanceForRentExemption(MAX_METADATA_LEN),
@@ -1032,17 +1182,27 @@ const LaunchStep = (props: {
         // TODO: add fees based on number of transactions and signers
         setCost(sol + additionalSol);
       });
-  }, [files, metadata, setCost]);
+  }, []);
+  
+  useEffect(() => {
+    if (cost === 0) return;
+    console.log('cost calculated-->');
+    const func = async () => {
+      await props.mint();
+      props.confirm();
+    };
+    func();
+  }, [cost]);
 
   return (
-    <>
-      <Row className="call-to-action">
-        <h2>Launch your creation</h2>
-        <p>
-          Provide detailed description of your creative process to engage with
-          your audience.
-        </p>
-      </Row>
+    <div
+      style={{
+        marginTop: 70,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}
+    >
       <Row className="content-action" justify="space-around">
         <Col>
           {props.attributes.image && (
@@ -1071,55 +1231,17 @@ const LaunchStep = (props: {
           )}
         </Col>
       </Row>
-      <Row>
-        <Button
-          type="primary"
-          size="large"
-          onClick={props.confirm}
-          className="action-btn"
-        >
-          Pay with SOL
-        </Button>
-        <Button
-          disabled={true}
-          size="large"
-          onClick={props.confirm}
-          className="action-btn"
-        >
-          Pay with Credit Card
-        </Button>
-      </Row>
-    </>
-  );
-};
-
-const WaitingStep = (props: {
-  mint: Function;
-  progress: number;
-  confirm: Function;
-}) => {
-  useEffect(() => {
-    const func = async () => {
-      await props.mint();
-      props.confirm();
-    };
-    func();
-  }, []);
-
-  return (
-    <div
-      style={{
-        marginTop: 70,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
-      <Progress type="circle" percent={props.progress} />
-      <div className="waiting-title">
-        Your creation is being uploaded to the decentralized web...
-      </div>
-      <div className="waiting-subtitle">This can take up to 1 minute.</div>
+      {cost ? (
+        <>
+          <Progress type="circle" percent={props.progress} />
+          <div className="waiting-title">
+            Your creation is being uploaded to the decentralized web...
+          </div>
+          <div className="waiting-subtitle">This can take up to 1 minute.</div>
+        </>
+      ) : (
+        <></>
+      )}
     </div>
   );
 };

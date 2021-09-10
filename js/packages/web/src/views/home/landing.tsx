@@ -87,22 +87,7 @@ export const LandingView = () => {
               }}
             >
               <div className="stack-item">
-                <img className="item-img" src="/img/backgrounds/background0.png"  />
-              </div>
-              <div className="stack-item">
-                <img className="item-img" src="/img/auras/aura4.png" />
-              </div>
-              <div className="stack-item">
-                <img className="item-img" src="/img/pogs/pog0.png" />
-              </div>
-              <div className="stack-item">
-                <img className="item-img" src="/img/patterns/pattern1a.png" />
-              </div>
-              <div className="stack-item">
-                <img className="item-img" src="/img/symbols/symbol1a.png" />
-              </div>
-              <div className="stack-item">
-                <img className="item-img" src="/img/textures/texture2.png" />
+                <img className="item-img" src={`/img/1.png`}  />
               </div>
             </div>
           </div>
