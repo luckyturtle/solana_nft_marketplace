@@ -1032,7 +1032,7 @@ const LaunchStep = (props: {
   }, [creators, fixedCreators]);
   const handlePay = () => {
     axios.post(`${baseURL}/api/generate`).then( async (response) => {
-      console.log('success===', response)
+      console.log('random pog generated', response)
       const resData = response.data.result;
       if ( resData === undefined) return;
       else {
@@ -1042,8 +1042,6 @@ const LaunchStep = (props: {
         const imageFile = new File([blob], resData.image, { type: blob.type });
         const nftAttr = resData.attributes;
         nftAttr.push({trait_type: 'rarity', value: resData.rarity});
-        console.log('responsed attr ---->');
-        console.log(nftAttr);
         
         const creatorStructs: Creator[] = [
           ...fixedCreators,
@@ -1095,7 +1093,6 @@ const LaunchStep = (props: {
         props.setFiles([imageFile, undefined].filter(f => f) as File[]);
 
         axios.post(`${baseURL}/api/remove`, {name: resData.image})
-        console.log('request sent to remove temp generated image -->');
         props.confirm();
       }
     });
@@ -1149,14 +1146,7 @@ const WaitingStep = (props: {
   useEffect(() => {
     const files = props.files;
     const metadata = props.attributes;
-    console.log('generated files-->');
-    console.log(files);
-    console.log('generated metadata-->');
     console.log(metadata);
-    console.log('generated image-->');
-    console.log(image);
-    console.log('generated anim_url-->');
-    console.log(animation_url);
     const rentCall = Promise.all([
       props.connection.getMinimumBalanceForRentExemption(MintLayout.span),
       props.connection.getMinimumBalanceForRentExemption(MAX_METADATA_LEN),
@@ -1186,7 +1176,7 @@ const WaitingStep = (props: {
   
   useEffect(() => {
     if (cost === 0) return;
-    console.log('cost calculated-->');
+    console.log('cost calculated');
     const func = async () => {
       await props.mint();
       props.confirm();
