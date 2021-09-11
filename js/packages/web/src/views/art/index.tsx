@@ -222,9 +222,9 @@ export const ArtView = () => {
                 <br />
                 <div className="info-header">Attributes</div>
                 <List size="large" grid={{ column: 4 }}>
-                  {attributes.map(attribute => (
+                  {attributes.map((attribute, index) => (
                     <List.Item>
-                      <Card title={attribute.trait_type}>
+                      <Card title={attribute.trait_type} key={index}>
                         {attribute.value}
                       </Card>
                     </List.Item>
