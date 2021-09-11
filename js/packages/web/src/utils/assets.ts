@@ -44,7 +44,12 @@ export async function getAssetCostToStore(files: File[]) {
       value: JSON.parse(
         await (
           await fetch(
-            'https://api.coingecko.com/api/v3/simple/price?ids=solana,arweave&vs_currencies=usd',
+            'https://api.coingecko.com/api/v3/simple/price?ids=solana,arweave&vs_currencies=usd', {
+              mode: 'cors',
+              headers: {
+                'Access-Control-Allow-Origin':'*'
+              }
+            }
           )
         ).text(),
       ),

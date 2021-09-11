@@ -195,11 +195,11 @@ export const ArtView = () => {
                 </Button> */}
 
             {/* TODO: Add conversion of MasterEditionV1 to MasterEditionV2 */}
-            <ArtMinting
+            {/* <ArtMinting
               id={id}
               key={remountArtMinting}
               onMint={async () => await setRemountArtMinting(prev => prev + 1)}
-            />
+            /> */}
           </Col>
           <Col span="12">
             <Divider />

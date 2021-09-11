@@ -90,12 +90,12 @@ const MetaplexMenu = () => {
           overlay={
             <Menu>
               <Menu.Item>
-                <Link to={`/`}>
+                <Link to={`/roadmap`}>
                   <Button className="app-btn">ROADMAP</Button>
                 </Link>
               </Menu.Item>
               <Menu.Item>
-                <Link to={`/`}>
+                <Link to={`/faq`}>
                   <Button className="app-btn">FAQ</Button>
                 </Link>
               </Menu.Item>

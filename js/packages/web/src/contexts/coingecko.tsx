@@ -9,7 +9,12 @@ export interface CoingeckoContextState {
 
 export const solToUSD = async (): Promise<number> => {
   const url = `${COINGECKO_COIN_PRICE_API}?ids=solana&vs_currencies=usd`;
-  const resp = await window.fetch(url).then(resp => resp.json());
+  const resp = await window.fetch(url, {
+    mode: 'cors',
+    headers: {
+      'Access-Control-Allow-Origin':'*'
+    }
+  }).then(resp => resp.json());
   return resp.solana.usd;
 };
 
