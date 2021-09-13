@@ -28,6 +28,7 @@ import {
   metadataByMintUpdater,
 } from './loadAccounts';
 import { onChangeAccount } from './onChangeAccount';
+import { needMetadataUpdate, setNeedMetadataUpdate } from '../../actions/nft';
 
 const MetaContext = React.createContext<MetaContextState>({
   metadata: [],
@@ -87,6 +88,7 @@ export function MetaProvider({ children = null as any }) {
   });
 
   const [isLoading, setIsLoading] = useState(true);
+  const [needUpdate, setNeedUpdate] = useState(false);
   /// customize
   const { publicKey } = useWallet();
   ///
@@ -113,23 +115,12 @@ export function MetaProvider({ children = null as any }) {
 
   useEffect(() => {
     (async () => {
-      if (!storeAddress) {
-        if (isReady) {
-          setIsLoading(false);
-        }
-        return;
-      } else if (!state.store) {
-        setIsLoading(true);
-      }
-      if (publicKey) {
-        console.log('My address: ', publicKey?.toString());
-        console.log(publicKey);
-      
-        console.log('-----> Query started');
+      if (needUpdate) {
+        console.log('-----> Update Query started');
 
         const nextState = await loadAccounts(connection, all, publicKey?.toBase58());
 
-        console.log('------->Query finished');
+        console.log('-------> Update Query finished');
 
         setState(nextState);
 
@@ -137,9 +128,43 @@ export function MetaProvider({ children = null as any }) {
         console.log('------->set finished');
 
         updateMints(nextState.metadataByMint);
+
+        setNeedMetadataUpdate(false);
+        setNeedUpdate(false);
+    } else {
+        if (!storeAddress) {
+          if (isReady) {
+            setIsLoading(false);
+          }
+          return;
+        } else if (!state.store) {
+          setIsLoading(true);
+        }
+        if (publicKey) {
+          console.log('My address: ', publicKey?.toString());
+          console.log(publicKey);
+        
+          console.log('-----> Query started');
+
+          const nextState = await loadAccounts(connection, all, publicKey?.toBase58());
+
+          console.log('------->Query finished');
+
+          setState(nextState);
+
+          setIsLoading(false);
+          console.log('------->set finished');
+
+          updateMints(nextState.metadataByMint);
+        }
       }
     })();
-  }, [connection, setState, updateMints, storeAddress, isReady, publicKey]);
+  }, [connection, setState, updateMints, storeAddress, isReady, publicKey, needUpdate]);
+
+  useEffect(() => {
+    if (!needMetadataUpdate) return;
+    setNeedUpdate(true);
+  }, [needMetadataUpdate]);
 
   const updateStateValue = useMemo<UpdateStateValueFunc>(
     () => (prop, key, value) => {

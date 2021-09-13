@@ -44,6 +44,7 @@ import { AmountLabel } from '../../components/AmountLabel';
 import useWindowDimensions from '../../utils/layout';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { baseURL } from '../../config/api';
+import { needMetadataUpdate, setNeedMetadataUpdate } from '../../actions/nft';
 
 const { Step } = Steps;
 const { Dragger } = Upload;
@@ -208,7 +209,7 @@ export const ArtCreateView = () => {
               files={files}
               progress={progress}
               connection={connection}
-              confirm={() => gotoStep(6)}
+              confirm={async() => gotoStep(6)}
             />
           )}
           {/* {0 < step && step < 5 && (
@@ -1143,6 +1144,21 @@ const WaitingStep = (props: {
     props.files,
     props.attributes,
   );
+  const [waitTillMetadatUpdated, setWaitTillMetadataUpdated] = useState(false);
+  const [isWaiting, setIsWaiting] = useState(false);
+
+  useEffect(() => {
+    if (!needMetadataUpdate) {
+      if (isWaiting) {
+        setIsWaiting(false);
+        setWaitTillMetadataUpdated(false);
+        props.confirm();
+      }
+    } else {
+      setIsWaiting(true);
+      setWaitTillMetadataUpdated(true);
+    }
+  }, [needMetadataUpdate]);
 
   useEffect(() => {
     const files = props.files;
@@ -1180,7 +1196,12 @@ const WaitingStep = (props: {
     console.log('cost calculated');
     const func = async () => {
       await props.mint();
-      props.confirm();
+      setNeedMetadataUpdate(true);
+      // setTimeout(() => {
+        setIsWaiting(false);
+        setWaitTillMetadataUpdated(false);
+        props.confirm();
+      // }, 5000);
     };
     func();
   }, [cost]);
@@ -1222,13 +1243,24 @@ const WaitingStep = (props: {
           )}
         </Col>
       </Row>
-      {cost ? (
+      {cost && !waitTillMetadatUpdated ? (
         <>
           <Progress type="circle" percent={props.progress} />
           <div className="waiting-title">
             Your creation is being uploaded to the decentralized web...
           </div>
           <div className="waiting-subtitle">This can take up to 1 minute.</div>
+        </>
+      ) : (
+        <></>
+      )}
+      {waitTillMetadatUpdated ? (
+        <>
+          <Spin />
+          <div className="waiting-title">
+            Updating store data from the decentralized web...
+          </div>
+          <div className="waiting-subtitle">Please wait a moment...</div>
         </>
       ) : (
         <></>

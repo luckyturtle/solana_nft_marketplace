@@ -29,6 +29,7 @@ import { getAssetCostToStore } from '../utils/assets';
 import { AR_SOL_HOLDER_ID } from '../utils/ids';
 import BN from 'bn.js';
 const RESERVED_TXN_MANIFEST = 'manifest.json';
+export let needMetadataUpdate = false;
 
 interface IArweaveResult {
   error?: string;
@@ -38,6 +39,10 @@ interface IArweaveResult {
     transactionId?: string;
     error?: string;
   }>;
+}
+
+export const setNeedMetadataUpdate = (value) => {
+  needMetadataUpdate = value;
 }
 
 export const mintNFT = async (
@@ -62,6 +67,9 @@ export const mintNFT = async (
   metadataAccount: StringPublicKey;
 } | void> => {
   if (!wallet?.publicKey) return;
+
+  needMetadataUpdate = false;
+  console.log('--> Initialize Update Need Flag', needMetadataUpdate);
 
   const metadataContent = {
     name: metadata.name,
@@ -302,6 +310,8 @@ export const mintNFT = async (
   // 1. Jordan: --- upload file and metadata to storage API
   // 2. pay for storage by hashing files and attaching memo for each file
 
+  // needMetadataUpdate = true;
+  // console.log('--> Set Update Need Flag', needMetadataUpdate);
   return { metadataAccount };
 };
 
