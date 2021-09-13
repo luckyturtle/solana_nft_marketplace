@@ -15,6 +15,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { MetaState, MetaContextState, UpdateStateValueFunc } from './types';
 import { queryExtendedMetadata } from './queryExtendedMetadata';
 import { processAuctions } from './processAuctions';
@@ -86,7 +87,9 @@ export function MetaProvider({ children = null as any }) {
   });
 
   const [isLoading, setIsLoading] = useState(true);
-
+  /// customize
+  const { publicKey } = useWallet();
+  ///
   const updateMints = useCallback(
     async metadataByMint => {
       try {
@@ -118,21 +121,25 @@ export function MetaProvider({ children = null as any }) {
       } else if (!state.store) {
         setIsLoading(true);
       }
+      if (publicKey) {
+        console.log('My address: ', publicKey?.toString());
+        console.log(publicKey);
+      
+        console.log('-----> Query started');
 
-      console.log('-----> Query started');
+        const nextState = await loadAccounts(connection, all, publicKey?.toBase58());
 
-      const nextState = await loadAccounts(connection, all);
+        console.log('------->Query finished');
 
-      console.log('------->Query finished');
+        setState(nextState);
 
-      setState(nextState);
+        setIsLoading(false);
+        console.log('------->set finished');
 
-      setIsLoading(false);
-      console.log('------->set finished');
-
-      updateMints(nextState.metadataByMint);
+        updateMints(nextState.metadataByMint);
+      }
     })();
-  }, [connection, setState, updateMints, storeAddress, isReady]);
+  }, [connection, setState, updateMints, storeAddress, isReady, publicKey]);
 
   const updateStateValue = useMemo<UpdateStateValueFunc>(
     () => (prop, key, value) => {

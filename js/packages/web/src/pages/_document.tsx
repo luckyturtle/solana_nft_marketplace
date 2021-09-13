@@ -40,7 +40,7 @@ export default class MetaplexDocument extends Document {
             href="/favicon-16x16.png"
           />
           <meta name="theme-color" content="#000000" />
-          <meta name="description" content="Metaplex NFT Marketplace" />
+          <meta name="description" content="Solana Pogs" />
           <link rel="manifest" href="/manifest.json" />
           <link
             rel="stylesheet"
@@ -48,6 +48,9 @@ export default class MetaplexDocument extends Document {
             integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA=="
             crossOrigin="anonymous"
           />
+          <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+          <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
+          <link href="/styles.core.css" rel="stylesheet" />
         </Head>
         <body>
           <Main />
@@ -57,6 +60,7 @@ export default class MetaplexDocument extends Document {
             src="https://platform.twitter.com/widgets.js"
             charSet="utf-8"
           />
+          <script src="https://use.fontawesome.com/releases/v5.15.3/js/all.js" crossOrigin="anonymous" />
           <script
             type="text/javascript"
             dangerouslySetInnerHTML={{

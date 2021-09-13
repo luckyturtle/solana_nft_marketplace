@@ -58,7 +58,6 @@ async function getProgramAccounts(
     'getProgramAccounts',
     args,
   );
-
   const data = (
     unsafeRes.result as Array<{
       account: AccountInfo<[string, string]>;
@@ -81,7 +80,7 @@ async function getProgramAccounts(
   return data;
 }
 
-export const loadAccounts = async (connection: Connection, all: boolean) => {
+export const loadAccounts = async (connection: Connection, all: boolean, publicKey?: string) => {
   const tempCache: MetaState = {
     metadata: [],
     metadataByMint: {},
@@ -160,8 +159,17 @@ export const loadAccounts = async (connection: Connection, all: boolean) => {
       } else {
         console.log('pulling optimized nfts');
 
+        /// customized
+        let amICreator = false;
+        ///
+
         for (let i = 0; i < MAX_CREATOR_LIMIT; i++) {
           for (let j = 0; j < whitelistedCreators.length; j++) {
+            /// customize
+            if (!amICreator && publicKey?.toString() === whitelistedCreators[j].info.address) {
+              amICreator = true;
+            }
+            ///
             additionalPromises.push(
               getProgramAccounts(connection, METADATA_PROGRAM_ID, {
                 filters: [
@@ -188,6 +196,37 @@ export const loadAccounts = async (connection: Connection, all: boolean) => {
               }).then(forEach(processMetaData)),
             );
           }
+
+          ///customized
+          if (!amICreator) {
+            additionalPromises.push(
+              getProgramAccounts(connection, METADATA_PROGRAM_ID, {
+                filters: [
+                  {
+                    memcmp: {
+                      offset:
+                        1 + // key
+                        32 + // update auth
+                        32 + // mint
+                        4 + // name string length
+                        MAX_NAME_LENGTH + // name
+                        4 + // uri string length
+                        MAX_URI_LENGTH + // uri
+                        4 + // symbol string length
+                        MAX_SYMBOL_LENGTH + // symbol
+                        2 + // seller fee basis points
+                        1 + // whether or not there is a creators vec
+                        4 + // creators vec length
+                        i * MAX_CREATOR_LEN,
+                      bytes: publicKey?.toString(),
+                    },
+                  },
+                ],
+              }).then(forEach(processMetaData)),
+            );
+            amICreator = true;
+          }
+          ///
         }
       }
     }),
@@ -282,7 +321,6 @@ export const makeSetter =
 
 const postProcessMetadata = async (tempCache: MetaState, all: boolean) => {
   const values = Object.values(tempCache.metadataByMint);
-
   for (const metadata of values) {
     await metadataByMintUpdater(metadata, tempCache, all);
   }
