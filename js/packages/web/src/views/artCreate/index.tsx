@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
-import { notify } from '@oyster/common';
+import { notify, sleep } from '@oyster/common';
 import {
   Button,
   Card,
@@ -49,6 +49,7 @@ import useWindowDimensions from '../../utils/layout';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { baseURL } from '../../config/api';
 import { needMetadataUpdate, setNeedMetadataUpdate } from '../../actions/nft';
+import { delay } from 'lodash';
 
 const { Step } = Steps;
 const { Dragger } = Upload;
@@ -128,7 +129,12 @@ export const ArtCreateView = () => {
     try {
       const progressCallBack = (maxValue) => {
         clearInterval(inte);
-        inte = intervalStart(maxValue);
+        if (maxValue === 96) setProgress(81);
+        else if (maxValue === 99) setProgress(96);
+        setTimeout(() => {
+          inte = intervalStart(maxValue);
+        }, 100);
+        // inte = intervalStart(maxValue);
         console.log(`Callback Value --> ${maxValue}`);
       };
       const _nft = await mintNFT(
@@ -141,6 +147,7 @@ export const ArtCreateView = () => {
         progressCallBack,
       );
       setProgress(99);
+      await sleep(500);
       if (_nft) setNft(_nft);
     } catch (e) {
       console.log('Error occured ===>');

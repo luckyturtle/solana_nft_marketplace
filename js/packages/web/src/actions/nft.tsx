@@ -179,7 +179,7 @@ export const mintNFT = async (
     instructions,
     signers,
   );
-  if (callback) callback(88);
+  if (callback) callback(81);
 
   try {
     await connection.confirmTransaction(txid, 'max');
