@@ -23,12 +23,15 @@ export const ArtistsView = () => {
   const createdMetadata = useCreatorArts(publicKey?.toBase58() || '');
   const { metadata, isLoading } = useMeta();
   const [activeKey, setActiveKey] = useState(ArtistViewState.Metaplex);
+  const [curPage, setCurPage] = useState(0);
+  const [curPageSize, setCurPageSize] = useState(12);
   const breakpointColumnsObj = {
     default: 4,
     1100: 3,
     700: 2,
     500: 1,
   };
+  const pageSizeList = ['12', '24', '60', '120'];
 
   const items =
     // activeKey === ArtistViewState.Owned
@@ -58,7 +61,7 @@ export const ArtistsView = () => {
       columnClassName="my-masonry-grid_column"
     >
       {!isLoading
-        ? items.map((m, idx) => {
+        ? items.slice(curPage * curPageSize, Math.min(items.length - 1, curPage * curPageSize + curPageSize)).map((m, idx) => {
             const id = m.pubkey;
             return (
               <Link to={`/art/${id}`} key={idx}>
@@ -72,7 +75,7 @@ export const ArtistsView = () => {
               </Link>
             );
           })
-        : [...Array(10)].map((_, idx) => <CardLoader key={idx} />)}
+        : [...Array(12)].map((_, idx) => <CardLoader key={idx} />)}
     </Masonry>
   );
 
@@ -104,78 +107,54 @@ export const ArtistsView = () => {
               <Card>
                 Background
               </Card>
-              <Select defaultValue="lucy" style={{ width: 120 }} onChange={handleChange}>
-                <Option value="jack">Jack</Option>
-                <Option value="lucy">Lucy</Option>
-                <Option value="disabled" disabled>
-                  Disabled
-                </Option>
-                <Option value="Yiminghe">yiminghe</Option>
+              <Select defaultValue="default" style={{ width: 120 }} onChange={handleChange}>
+                <Option value="default">Default</Option>
               </Select>
             </Col>
             <Col style={{marginBottom: '1rem'}}>
               <Card>
                 Aura
               </Card>
-              <Select defaultValue="lucy" style={{ width: 120 }} onChange={handleChange}>
-                <Option value="jack">Jack</Option>
-                <Option value="lucy">Lucy</Option>
-                <Option value="disabled" disabled>
-                  Disabled
-                </Option>
-                <Option value="Yiminghe">yiminghe</Option>
+              <Select defaultValue="all" style={{ width: 120 }} onChange={handleChange}>
+                <Option value="all">All</Option>
+                <Option value="has">Has</Option>
+                <Option value="none">None</Option>
               </Select>
             </Col>
             <Col style={{marginBottom: '1rem'}}>
               <Card>
                 Pog/Slammer
               </Card>
-              <Select defaultValue="lucy" style={{ width: 120 }} onChange={handleChange}>
-                <Option value="jack">Jack</Option>
-                <Option value="lucy">Lucy</Option>
-                <Option value="disabled" disabled>
-                  Disabled
-                </Option>
-                <Option value="Yiminghe">yiminghe</Option>
+              <Select defaultValue="all" style={{ width: 120 }} onChange={handleChange}>
+                <Option value="all">All</Option>
+                <Option value="pog">Pog</Option>
+                <Option value="slammer">Slammer</Option>
               </Select>
             </Col>
             <Col style={{marginBottom: '1rem'}}>
               <Card>
                 Pattern
               </Card>
-              <Select defaultValue="lucy" style={{ width: 120 }} onChange={handleChange}>
-                <Option value="jack">Jack</Option>
-                <Option value="lucy">Lucy</Option>
-                <Option value="disabled" disabled>
-                  Disabled
-                </Option>
-                <Option value="Yiminghe">yiminghe</Option>
+              <Select defaultValue="all" style={{ width: 120 }} onChange={handleChange}>
+                <Option value="all">All</Option>
               </Select>
             </Col>
             <Col style={{marginBottom: '1rem'}}>
               <Card>
                 Symbol
               </Card>
-              <Select defaultValue="lucy" style={{ width: 120 }} onChange={handleChange}>
-                <Option value="jack">Jack</Option>
-                <Option value="lucy">Lucy</Option>
-                <Option value="disabled" disabled>
-                  Disabled
-                </Option>
-                <Option value="Yiminghe">yiminghe</Option>
+              <Select defaultValue="all" style={{ width: 120 }} onChange={handleChange}>
+                <Option value="all">All</Option>
+                <Option value="has">Has</Option>
+                <Option value="none">None</Option>
               </Select>
             </Col>
             <Col style={{marginBottom: '1rem'}}>
               <Card>
                 Texture
               </Card>
-              <Select defaultValue="lucy" style={{ width: 120 }} onChange={handleChange}>
-                <Option value="jack">Jack</Option>
-                <Option value="lucy">Lucy</Option>
-                <Option value="disabled" disabled>
-                  Disabled
-                </Option>
-                <Option value="Yiminghe">yiminghe</Option>
+              <Select defaultValue="all" style={{ width: 120 }} onChange={handleChange}>
+                <Option value="all">All</Option>
               </Select>
             </Col>
           </Row>
@@ -207,9 +186,15 @@ export const ArtistsView = () => {
         </Col>
       </Content>
       <Pagination
-        defaultCurrent={1}
-        total={200}
+        current={curPage + 1}
+        total={items && items.length}
         showSizeChanger
+        defaultPageSize={12}
+        pageSizeOptions={pageSizeList}
+        onChange={(e, p) => {
+          setCurPage(e - 1);
+          setCurPageSize(p ? p : 12);
+        }}
       />
     </Layout>
   );

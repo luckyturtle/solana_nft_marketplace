@@ -1,20 +1,24 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
+import { notify } from '@oyster/common';
 import {
-  Steps,
-  Row,
   Button,
-  Upload,
+  Card,
   Col,
-  Input,
-  Statistic,
-  Slider,
-  Progress,
-  Spin,
-  InputNumber,
+  Divider,
   Form,
-  Typography,
+  Input,
+  InputNumber,
+  List,
+  Progress,
+  Row,
+  Slider,
   Space,
+  Spin,
+  Statistic,
+  Steps,
+  Typography,
+  Upload,
 } from 'antd';
 import { ArtCard } from './../../components/ArtCard';
 import { UserSearch, UserValue } from './../../components/UserSearch';
@@ -59,6 +63,7 @@ export const ArtCreateView = () => {
   const { width } = useWindowDimensions();
 
   const [step, setStep] = useState<number>(0);
+  const [cost, setCost] = useState<number>(0.00);
   const [stepsVisible, setStepsVisible] = useState<boolean>(false);//true);
   const [progress, setProgress] = useState<number>(0);
   const [nft, setNft] =
@@ -111,22 +116,49 @@ export const ArtCreateView = () => {
       },
     };
     //setStepsVisible(false); 
-    const inte = setInterval(
-      () => setProgress(prog => Math.min(prog + 1, 99)),
-      600,
-    );
-    // Update progress inside mintNFT
-    const _nft = await mintNFT(
-      connection,
-      wallet,
-      env,
-      files,
-      metadata,
-      attributes.properties?.maxSupply,
-    );
-    
-    if (_nft) setNft(_nft);
-    clearInterval(inte);
+    const intervalStart = (max) => {
+      return setInterval(
+        () => setProgress(prog => Math.min(prog + 1, max)),
+        600,
+      );
+    }
+
+    let inte = intervalStart(3);
+      // Update progress inside mintNFT
+    try {
+      const progressCallBack = (maxValue) => {
+        clearInterval(inte);
+        inte = intervalStart(maxValue);
+        console.log(`Callback Value --> ${maxValue}`);
+      };
+      const _nft = await mintNFT(
+        connection,
+        wallet,
+        env,
+        files,
+        metadata,
+        attributes.properties?.maxSupply,
+        progressCallBack,
+      );
+      setProgress(99);
+      if (_nft) setNft(_nft);
+    } catch (e) {
+      console.log('Error occured ===>');
+      console.log(e);
+      
+      notify({
+        message: 'Minting Error',
+        description: (
+          <p>
+            Could not mint NFT on Solana at this Moment <br /> Try again later!
+          </p>
+        ),
+        type: 'warning',
+      });
+      throw e;
+    } finally {
+      clearInterval(inte);
+    }
   };
 
   return (
@@ -207,6 +239,7 @@ export const ArtCreateView = () => {
               mint={mint}
               attributes={attributes}
               files={files}
+              setCostAmount={setCost}
               progress={progress}
               connection={connection}
               confirm={async() => gotoStep(6)}
@@ -219,8 +252,20 @@ export const ArtCreateView = () => {
           )} */}
         </Col>
       </Row>
-      <MetaplexOverlay visible={step === 6}>
-        <Congrats nft={nft} />
+      <MetaplexOverlay
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: '100px',
+        }}
+        visible={step === 6}
+      >
+        <Congrats
+          nft={nft}
+          attributes={attributes}
+          files={files}
+          cost={cost}
+        />
       </MetaplexOverlay>
     </>
   );
@@ -1136,29 +1181,27 @@ const WaitingStep = (props: {
   progress: number;
   attributes: IMetadataExtension;
   files: File[];
+  setCostAmount: Function;
   connection: Connection;
   confirm: Function;
 }) => {
   const [cost, setCost] = useState(0);
-  const { image, animation_url } = useArtworkFiles(
-    props.files,
-    props.attributes,
-  );
-  const [waitTillMetadatUpdated, setWaitTillMetadataUpdated] = useState(false);
-  const [isWaiting, setIsWaiting] = useState(false);
+  // const [waitTillMetadatUpdated, setWaitTillMetadataUpdated] = useState(false);
+  // const [isWaiting, setIsWaiting] = useState(false);
+  const history = useHistory();
 
-  useEffect(() => {
-    if (!needMetadataUpdate) {
-      if (isWaiting) {
-        setIsWaiting(false);
-        setWaitTillMetadataUpdated(false);
-        props.confirm();
-      }
-    } else {
-      setIsWaiting(true);
-      setWaitTillMetadataUpdated(true);
-    }
-  }, [needMetadataUpdate]);
+  // useEffect(() => {
+  //   if (!needMetadataUpdate) {
+  //     if (isWaiting) {
+  //       setIsWaiting(false);
+  //       setWaitTillMetadataUpdated(false);
+  //       props.confirm();
+  //     }
+  //   } else {
+  //     setIsWaiting(true);
+  //     setWaitTillMetadataUpdated(true);
+  //   }
+  // }, [needMetadataUpdate]);
 
   useEffect(() => {
     const files = props.files;
@@ -1175,33 +1218,51 @@ const WaitingStep = (props: {
       ]).then(async lamports => {
         const sol = lamports / LAMPORT_MULTIPLIER;
 
-        // TODO: cache this and batch in one call
-        const [mintRent, metadataRent] = await rentCall;
+    // TODO: cache this and batch in one call
+    try {
+      const [mintRent, metadataRent] = await rentCall;
+      
+      // const uriStr = 'x';
+      // let uriBuilder = '';
+      // for (let i = 0; i < MAX_URI_LENGTH; i++) {
+      //   uriBuilder += uriStr;
+      // }
 
-        // const uriStr = 'x';
-        // let uriBuilder = '';
-        // for (let i = 0; i < MAX_URI_LENGTH; i++) {
-        //   uriBuilder += uriStr;
-        // }
+      const additionalSol = (metadataRent + mintRent) / LAMPORT_MULTIPLIER;
 
-        const additionalSol = (metadataRent + mintRent) / LAMPORT_MULTIPLIER;
-
-        // TODO: add fees based on number of transactions and signers
-        setCost(sol + additionalSol);
-      });
+      // TODO: add fees based on number of transactions and signers
+      setCost(sol + additionalSol);
+      props.setCostAmount(sol + additionalSol);
+    } catch (e) {
+        notify({
+          message: 'Calculating Mint Cost Error',
+          description: (
+            <p>
+              Could not calculate NFT Cost at this Moment <br /> Try again later!
+            </p>
+          ),
+          type: 'warning',
+        });
+        history.push('/art/create/0');
+      }
+    });
   }, []);
   
   useEffect(() => {
     if (cost === 0) return;
     console.log('cost calculated');
     const func = async () => {
-      await props.mint();
-      setNeedMetadataUpdate(true);
-      // setTimeout(() => {
-        setIsWaiting(false);
-        setWaitTillMetadataUpdated(false);
+      try {
+        await props.mint();
+        setNeedMetadataUpdate(true);
         props.confirm();
-      // }, 5000);
+      } catch {
+        history.push('/art/create/0');
+        setNeedMetadataUpdate(false);
+      } finally {
+        // setIsWaiting(false);
+        // setWaitTillMetadataUpdated(false);
+      }
     };
     func();
   }, [cost]);
@@ -1215,15 +1276,15 @@ const WaitingStep = (props: {
         alignItems: 'center',
       }}
     >
-      <Row className="content-action" justify="space-around">
+      <Row className="content-action w-100" justify="space-around">
         <Col>
           {props.attributes.image && (
             <ArtCard
-              image={image}
-              animationURL={animation_url}
+              image={''}
+              animationURL={''}
               category={props.attributes.properties?.category}
-              name={props.attributes.name}
-              symbol={props.attributes.symbol}
+              name={'New NFT'}
+              symbol={''}
               small={true}
             />
           )}
@@ -1243,7 +1304,7 @@ const WaitingStep = (props: {
           )}
         </Col>
       </Row>
-      {cost && !waitTillMetadatUpdated ? (
+      {cost ? (
         <>
           <Progress type="circle" percent={props.progress} />
           <div className="waiting-title">
@@ -1254,7 +1315,7 @@ const WaitingStep = (props: {
       ) : (
         <></>
       )}
-      {waitTillMetadatUpdated ? (
+      {/* {waitTillMetadatUpdated ? (
         <>
           <Spin />
           <div className="waiting-title">
@@ -1264,7 +1325,7 @@ const WaitingStep = (props: {
         </>
       ) : (
         <></>
-      )}
+      )} */}
     </div>
   );
 };
@@ -1273,8 +1334,15 @@ const Congrats = (props: {
   nft?: {
     metadataAccount: StringPublicKey;
   };
+  attributes: IMetadataExtension;
+  files: File[];
+  cost: number;
 }) => {
   const history = useHistory();
+  const { image, animation_url } = useArtworkFiles(
+    props.files,
+    props.attributes,
+  );
 
   const newTweetURL = () => {
     const params = {
@@ -1293,6 +1361,55 @@ const Congrats = (props: {
   return (
     <>
       <div className="waiting-title">Congratulations, you created an NFT!</div>
+      <br />
+      <br />
+      <Row className="content-action w-100" justify="space-around">
+        <Col span="10" className="section" style={{ minWidth: 300 }}>
+          <Row className="w-100" justify="space-around">
+            <Col>
+            {props.attributes.image && (
+              <ArtCard
+                image={image}
+                animationURL={animation_url}
+                category={props.attributes.properties?.category}
+                name={props.attributes.name}
+                symbol={props.attributes.symbol}
+                small={false}
+              />
+            )}
+            </Col>
+            <Col span="18">
+              <Divider />
+              <Statistic
+                className="create-statistic"
+                title="Royalty Percentage"
+                value={props.attributes.seller_fee_basis_points / 100}
+                precision={2}
+                suffix="%"
+                />
+              <AmountLabel title="Cost to Create" amount={props.cost} />
+            </Col>
+          </Row>
+        </Col>
+        <Col span="10">
+          {props.attributes.attributes && (
+            <>
+              <div className="info-header">Attributes</div>
+              <List size="large" grid={{ column: 4 }}>
+                {props.attributes.attributes?.map((attribute, index) => (
+                  <List.Item>
+                    <Card title={attribute.trait_type} key={index}>
+                      {attribute.value}
+                    </Card>
+                  </List.Item>
+                ))}
+              </List>
+            </>
+          )}
+        </Col>
+      </Row>
+      <Divider />
+      <br />
       <div className="congrats-button-container">
         <Button
           className="metaplex-button"

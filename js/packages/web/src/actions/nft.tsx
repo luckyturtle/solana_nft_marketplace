@@ -63,6 +63,7 @@ export const mintNFT = async (
     sellerFeeBasisPoints: number;
   },
   maxSupply?: number,
+  callback?: Function,
 ): Promise<{
   metadataAccount: StringPublicKey;
 } | void> => {
@@ -95,7 +96,6 @@ export const mintNFT = async (
     ...files,
     new File([JSON.stringify(metadataContent)], 'metadata.json'),
   ];
-
   const { instructions: pushInstructions, signers: pushSigners } =
     await prepPayForFilesTxn(wallet, realFiles, metadata);
 
@@ -105,7 +105,7 @@ export const mintNFT = async (
   const mintRent = await connection.getMinimumBalanceForRentExemption(
     MintLayout.span,
   );
-  // const accountRent = await connection.getMinimumBalanceForRentExemption(
+// const accountRent = await connection.getMinimumBalanceForRentExemption(
   //   AccountLayout.span,
   // );
 
@@ -179,6 +179,7 @@ export const mintNFT = async (
     instructions,
     signers,
   );
+  if (callback) callback(88);
 
   try {
     await connection.confirmTransaction(txid, 'max');
@@ -190,6 +191,7 @@ export const mintNFT = async (
   // await connection.confirmTransaction(txid, 'max');
   await connection.getParsedConfirmedTransaction(txid, 'confirmed');
 
+  if (callback) callback(96);
   // this means we're done getting AR txn setup. Ship it off to ARWeave!
   const data = new FormData();
 
@@ -222,6 +224,9 @@ export const mintNFT = async (
   const metadataFile = result.messages?.find(
     m => m.filename === RESERVED_TXN_MANIFEST,
   );
+
+  if (callback) callback(99);
+
   if (metadataFile?.transactionId && wallet.publicKey) {
     const updateInstructions: TransactionInstruction[] = [];
     const updateSigners: Keypair[] = [];

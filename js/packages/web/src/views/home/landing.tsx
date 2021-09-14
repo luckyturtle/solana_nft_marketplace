@@ -33,7 +33,7 @@ export const LandingView = () => {
       columnClassName="my-masonry-grid_column"
     >
       {!isLoading
-        ? items.map((m, idx) => {
+        ? items.slice(0, Math.min(items.length, 12)).map((m, idx) => {
             const id = m.pubkey;
             return (
               <Link to={`/art/${id}`} key={idx}>
@@ -47,7 +47,7 @@ export const LandingView = () => {
               </Link>
             );
           })
-        : [...Array(10)].map((_, idx) => <CardLoader key={idx} />)}
+        : [...Array(12)].map((_, idx) => <CardLoader key={idx} />)}
     </Masonry>
   );
 

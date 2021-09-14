@@ -41,12 +41,13 @@ export const AuctionListView = () => {
   const createdMetadata = useCreatorArts(publicKey?.toBase58() || '');
   const { metadata, isLoading } = useMeta();
   const [activeKey, setActiveKey] = useState(AuctionListViewState.Metaplex);
+  // const [curPage, setCurPage] = useState(0);
+  // const [curPageSize, setCurPageSize] = useState(12);
   const breakpointColumnsObj = {
     default: 1
   };
 
-  const items =
-      metadata;
+  const pageSizeList = ['5', '10', '20', '50'];
 
   useEffect(() => {
     if (connected) {
@@ -63,7 +64,7 @@ export const AuctionListView = () => {
       columnClassName="my-masonry-grid_column"
     >
       {!isLoading
-        ? items.map((m, idx) => {
+        ? metadata.slice(0, Math.min(metadata.length, 10)).map((m, idx) => {
             const id = m.pubkey;
             const art = useArt(id);
             const { ref, data } = useExtendedArt(id);
@@ -203,7 +204,7 @@ export const AuctionListView = () => {
               </div>
             );
           })
-        : [...Array(10)].map((_, idx) => <CardLoader key={idx} />)}
+        : [...Array(8)].map((_, idx) => <CardLoader key={idx} />)}
     </Masonry>
   );
 
@@ -235,11 +236,17 @@ export const AuctionListView = () => {
           </Row>
         </Col>
       </Content>
-      <Pagination
-        defaultCurrent={1}
-        total={200}
-        showSizeChanger={false}
-      />
+      {/* <Pagination
+        // current={curPage + 1}
+        // total={metadata && metadata.length}
+        // showSizeChanger
+        // defaultPageSize={5}
+        // pageSizeOptions={pageSizeList}
+        // onChange={(e, p) => {
+        //   setCurPage(e - 1);
+        //   setCurPageSize(p ? p : 5);
+        // }}
+      /> */}
     </Layout>
   );
 };
