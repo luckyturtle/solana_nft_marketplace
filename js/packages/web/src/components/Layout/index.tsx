@@ -28,7 +28,7 @@ export const AppLayout = React.memo((props: any) => {
         <Header className="App-Bar">
           <AppBar />
         </Header>
-        <Content style={{ overflow: 'scroll', paddingBottom: 50 }}>
+        <Content style={{ overflow: 'visible', paddingBottom: 50 }}>
           {props.children}
         </Content>
         <Footer />

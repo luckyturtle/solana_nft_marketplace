@@ -7,7 +7,7 @@ const path = require("path");
 const { generateArt } = require("./generate");
 const app = express();
 
-const port = process.env.PORT || 3030;
+const port = process.env.PORT || 4040;
 const baseUrl = '0.0.0.0';
 const directory = './assets/temp/';
 
@@ -48,5 +48,5 @@ app.post("/api/remove", (req, res) => {
 })
 
 https.createServer(httpsOptions, app).listen(port, baseUrl, () => {
-  console.log("server is listening on port 3030");
+  console.log("server is listening on port 4040");
 });

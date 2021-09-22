@@ -122,7 +122,7 @@ export const loadAccounts = async (connection: Connection, all: boolean, publicK
 
   const promises = [
     getProgramAccounts(connection, VAULT_ID).then(forEach(processVaultData)),
-    getProgramAccounts(connection, AUCTION_ID).then(forEach(processAuctions)),
+    // getProgramAccounts(connection, AUCTION_ID).then(forEach(processAuctions)),
     ,
     getProgramAccounts(connection, METAPLEX_ID).then(
       forEach(processMetaplexAccounts),

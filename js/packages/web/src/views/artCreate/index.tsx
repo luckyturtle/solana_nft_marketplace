@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import VideoPlayer from "react-background-video-player";
 import axios from 'axios';
 import { notify, sleep } from '@oyster/common';
 import {
@@ -65,11 +66,13 @@ export const ArtCreateView = () => {
 
   const [step, setStep] = useState<number>(0);
   const [cost, setCost] = useState<number>(0.00);
+  const [approved, setApproved] = useState<boolean>(false);
   const [stepsVisible, setStepsVisible] = useState<boolean>(false);//true);
   const [progress, setProgress] = useState<number>(0);
   const [nft, setNft] =
     useState<{ metadataAccount: StringPublicKey } | undefined>(undefined);
   const [files, setFiles] = useState<File[]>([]);
+  const [pogFile, setPogFile] = useState<File>();
   const [attributes, setAttributes] = useState<IMetadataExtension>({
     name: '',
     symbol: '',
@@ -117,17 +120,20 @@ export const ArtCreateView = () => {
       },
     };
     //setStepsVisible(false); 
+    setApproved(false);
+
     const intervalStart = (max) => {
       return setInterval(
         () => setProgress(prog => Math.min(prog + 1, max)),
         600,
       );
     }
-
+    
     let inte = intervalStart(3);
       // Update progress inside mintNFT
     try {
       const progressCallBack = (maxValue) => {
+        setApproved(true);
         clearInterval(inte);
         if (maxValue === 96) setProgress(81);
         else if (maxValue === 99) setProgress(96);
@@ -238,7 +244,8 @@ export const ArtCreateView = () => {
               setAttributes={setAttributes}
               files={files}
               setFiles={setFiles}
-              confirm={() => gotoStep(5)}
+              setPogFile={setPogFile}
+              confirm={() => { gotoStep(5); }}
             />
           )}
           {step === 5 && (
@@ -246,10 +253,13 @@ export const ArtCreateView = () => {
               mint={mint}
               attributes={attributes}
               files={files}
-              setCostAmount={setCost}
+              pogFile={pogFile}
+              // setCostAmount={setCost}
+              nft={nft}
               progress={progress}
-              connection={connection}
-              confirm={async() => gotoStep(6)}
+              // connection={connection}
+              approved={approved}
+              // confirm={async() => gotoStep(6)}
             />
           )}
           {/* {0 < step && step < 5 && (
@@ -259,7 +269,7 @@ export const ArtCreateView = () => {
           )} */}
         </Col>
       </Row>
-      <MetaplexOverlay
+      {/* <MetaplexOverlay
         style={{
           position: 'absolute',
           left: 0,
@@ -273,7 +283,7 @@ export const ArtCreateView = () => {
           files={files}
           cost={cost}
         />
-      </MetaplexOverlay>
+      </MetaplexOverlay> */}
     </>
   );
 };
@@ -1059,6 +1069,7 @@ const LaunchStep = (props: {
   setAttributes: (attr: IMetadataExtension) => void;
   files: File[];
   setFiles: (files: File[]) => void;
+  setPogFile: (file: File) => void;
 }) => {
   const { publicKey, connected } = useWallet();
   const [creators, setCreators] = useState<Array<UserValue>>([]);
@@ -1091,9 +1102,13 @@ const LaunchStep = (props: {
       if ( resData === undefined) return;
       else {
         const imageUrl = `${baseURL}/${resData.image}`;
+        const imagePogUrl = imageUrl.replace('.png', '_pog.png');
         const response = await fetch(imageUrl);
         const blob = await response.blob();
         const imageFile = new File([blob], resData.image, { type: blob.type });
+        const pogResponse = await fetch(imagePogUrl);
+        const pogBlob = await pogResponse.blob();
+        const imagePogFile = new File([pogBlob], resData.image.replace('.png', '_pog.png'), { type: pogBlob.type });
         const nftAttr = resData.attributes;
         nftAttr.push({trait_type: 'rarity', value: resData.rarity});
         
@@ -1145,8 +1160,10 @@ const LaunchStep = (props: {
           attributes: nftAttr,
         });
         props.setFiles([imageFile, undefined].filter(f => f) as File[]);
+        props.setPogFile(imagePogFile);
 
         axios.post(`${baseURL}/api/remove`, {name: resData.image})
+        axios.post(`${baseURL}/api/remove`, {name: resData.image.replace('.png', '_pog.png')})
         props.confirm();
       }
     });
@@ -1155,10 +1172,9 @@ const LaunchStep = (props: {
   return (
     <>
       <Row className="call-to-action">
-        <h2>Launch your creation</h2>
+        <h2>Launch your new Pog</h2>
         <p>
-          Provide detailed description of your creative process to engage with
-          your audience.
+        You should pay 0.5 sol to mint new Solana Pog.<br />If you pay now, will have it in a few min.
         </p>
       </Row>
       <Row>
@@ -1186,83 +1202,43 @@ const LaunchStep = (props: {
 const WaitingStep = (props: {
   mint: Function;
   progress: number;
+  nft?: {
+    metadataAccount: StringPublicKey;
+  };
   attributes: IMetadataExtension;
   files: File[];
-  setCostAmount: Function;
-  connection: Connection;
-  confirm: Function;
+  pogFile?: File;
+  // setCostAmount: Function;
+  // connection: Connection;
+  approved: boolean;
+  // confirm: Function;
 }) => {
-  const [cost, setCost] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [playable, setPlayable] = useState(false);
+  const [complete, setComplete] = useState(false);
+  const [videoSource, setVideoSource] = useState("/video/start.mp4");
+  const [thumbSource, setThumbSource] = useState("/img/thumb.png");
+  const [imageSource, setImageSource] = useState("");
   // const [waitTillMetadatUpdated, setWaitTillMetadataUpdated] = useState(false);
   // const [isWaiting, setIsWaiting] = useState(false);
   const history = useHistory();
-
-  // useEffect(() => {
-  //   if (!needMetadataUpdate) {
-  //     if (isWaiting) {
-  //       setIsWaiting(false);
-  //       setWaitTillMetadataUpdated(false);
-  //       props.confirm();
-  //     }
-  //   } else {
-  //     setIsWaiting(true);
-  //     setWaitTillMetadataUpdated(true);
-  //   }
-  // }, [needMetadataUpdate]);
+  const vidRef = useRef<HTMLVideoElement>(null);
+  const { width } = useWindowDimensions();
 
   useEffect(() => {
-    const files = props.files;
-    const metadata = props.attributes;
-    console.log(metadata);
-    const rentCall = Promise.all([
-      props.connection.getMinimumBalanceForRentExemption(MintLayout.span),
-      props.connection.getMinimumBalanceForRentExemption(MAX_METADATA_LEN),
-    ]);
-    if (files.length)
-      getAssetCostToStore([
-        ...files,
-        new File([JSON.stringify(metadata)], 'metadata.json'),
-      ]).then(async lamports => {
-        const sol = lamports / LAMPORT_MULTIPLIER;
-
-    // TODO: cache this and batch in one call
-    try {
-      const [mintRent, metadataRent] = await rentCall;
-      
-      // const uriStr = 'x';
-      // let uriBuilder = '';
-      // for (let i = 0; i < MAX_URI_LENGTH; i++) {
-      //   uriBuilder += uriStr;
-      // }
-
-      const additionalSol = (metadataRent + mintRent) / LAMPORT_MULTIPLIER;
-
-      // TODO: add fees based on number of transactions and signers
-      setCost(sol + additionalSol);
-      props.setCostAmount(sol + additionalSol);
-    } catch (e) {
-        notify({
-          message: 'Calculating Mint Cost Error',
-          description: (
-            <p>
-              Could not calculate NFT Cost at this Moment <br /> Try again later!
-            </p>
-          ),
-          type: 'warning',
-        });
-        history.push('/art/create/0');
-      }
-    });
-  }, []);
-  
-  useEffect(() => {
-    if (cost === 0) return;
-    console.log('cost calculated');
+    // if (cost === 0) return;
+    // console.log('cost calculated');
     const func = async () => {
       try {
         await props.mint();
         setNeedMetadataUpdate(true);
-        props.confirm();
+        // props.confirm();
+        setIsLoading(false);
+        console.log('--> Received ', props.approved)
+        // if (props.approved) {
+          setVideoSource("/video/end.mp4");
+          setComplete(true);
+        // }
       } catch {
         history.push('/art/create/0');
         setNeedMetadataUpdate(false);
@@ -1271,178 +1247,235 @@ const WaitingStep = (props: {
         // setWaitTillMetadataUpdated(false);
       }
     };
+    setComplete(false);
+    setPlayable(false);
+    setIsLoading(false);
+    setNeedMetadataUpdate(false);
+    console.log('--> Start mint')
     func();
-  }, [cost]);
+  }, []);
+
+  useEffect(() => {
+    const file = props.pogFile;
+    if (!file) return;
+    const imageUrl = URL.createObjectURL(file);
+    setImageSource(imageUrl);
+  }, [props.pogFile]);
+
+  useEffect(() => {
+    const isApproved = props.approved;
+    if (!isApproved) return;
+    if (vidRef.current) {
+      vidRef.current.play();
+      setThumbSource("/img/trans.png");
+    }
+  }, [props.approved]);
+
+  const handleMainVideoEnded = ()=>{
+    if (complete) return;
+    setVideoSource("/video/loop.mp4");
+    setIsLoading(true);
+    setPlayable(true);
+   }
 
   return (
     <div
       style={{
-        marginTop: 70,
+        marginTop: width > 550 ? 70 : 0,
+        paddingTop: '18%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        position: 'relative',
+        minHeight: width < 1100 ? '54vw' : '594px',
+        width: '100%',
       }}
     >
-      <Row className="content-action w-100" justify="space-around">
-        <Col>
-          {props.attributes.image && (
-            <ArtCard
-              image={''}
-              animationURL={''}
-              category={props.attributes.properties?.category}
-              name={'New NFT'}
-              symbol={''}
-              small={true}
-            />
-          )}
-        </Col>
-        <Col className="section" style={{ minWidth: 300 }}>
-          <Statistic
-            className="create-statistic"
-            title="Royalty Percentage"
-            value={props.attributes.seller_fee_basis_points / 100}
-            precision={2}
-            suffix="%"
-          />
-          {cost ? (
-            <AmountLabel title="Cost to Create" amount={cost.toFixed(5)} />
-          ) : (
-            <Spin />
-          )}
-        </Col>
-      </Row>
-      {cost ? (
+      <VideoPlayer
+        className="w-100"
+        src={videoSource}
+        ref={vidRef}
+        poster={thumbSource}
+        autoPlay={playable}
+        loop={isLoading}
+        style={{
+          position: 'absolute',
+          height: '100%',
+          top: 0,
+          left: '50%',
+          transform: 'translate(-50%, 0)',
+          zIndex: 0,
+        }}
+        onEnd={handleMainVideoEnded}
+      />
+      {!complete ? (
         <>
           <Progress type="circle" percent={props.progress} />
-          <div className="waiting-title">
+          <div className="waiting-title" style={{
+            fontSize: width < 865 ? '1rem' : '2rem',
+            zIndex: 0,
+          }}>
             Your creation is being uploaded to the decentralized web...
           </div>
-          <div className="waiting-subtitle">This can take up to 1 minute.</div>
-        </>
-      ) : (
-        <></>
-      )}
-      {/* {waitTillMetadatUpdated ? (
-        <>
-          <Spin />
-          <div className="waiting-title">
-            Updating store data from the decentralized web...
+          <div className="waiting-subtitle" style={{
+            fontSize: width < 865 ? '0.8rem' : '1rem',
+            zIndex: 0,
+          }}>
+            This can take up to 1 minute.
           </div>
-          <div className="waiting-subtitle">Please wait a moment...</div>
         </>
       ) : (
-        <></>
-      )} */}
+        <>
+          <div
+            className="w-100"
+            style={{
+              height: width < 1100 ? '54vw' : '594px',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              zIndex: 100,
+            }}
+          >
+            <img
+              src={imageSource}
+              style={{
+                top: width < 1100 ? '11vw' : '121px',
+                position: 'absolute',
+                left: '50%',
+                width: width < 1100 ? '41vw' : '451px',
+                transform: 'translateX(-52%)',
+              }}
+            />
+          </div>
+          <div className="congrats-button-container" style={{
+            position: 'absolute',
+            top: width < 1100 ? '50vw' : '550px',
+            left: '50%',
+            transform: 'translate(-50%, 0)',
+            zIndex: 0,
+          }}>
+            <Button
+              className=""
+              onClick={_ =>
+                history.push(`/art/${props.nft?.metadataAccount.toString()}`)
+              }
+            >
+              <span>See it in your collection</span>
+              <span>&gt;</span>
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 };
 
-const Congrats = (props: {
-  nft?: {
-    metadataAccount: StringPublicKey;
-  };
-  attributes: IMetadataExtension;
-  files: File[];
-  cost: number;
-}) => {
-  const history = useHistory();
-  const { image, animation_url } = useArtworkFiles(
-    props.files,
-    props.attributes,
-  );
+// const Congrats = (props: {
+//   nft?: {
+//     metadataAccount: StringPublicKey;
+//   };
+//   attributes: IMetadataExtension;
+//   files: File[];
+//   cost: number;
+// }) => {
+//   const history = useHistory();
+//   const { image, animation_url } = useArtworkFiles(
+//     props.files,
+//     props.attributes,
+//   );
 
-  const newTweetURL = () => {
-    const params = {
-      text: "I've created a new NFT artwork on Metaplex, check it out!",
-      url: `${
-        window.location.origin
-      }/#/art/${props.nft?.metadataAccount.toString()}`,
-      hashtags: 'NFT,Crypto,Metaplex',
-      // via: "Metaplex",
-      related: 'Metaplex,Solana',
-    };
-    const queryParams = new URLSearchParams(params).toString();
-    return `https://twitter.com/intent/tweet?${queryParams}`;
-  };
+//   const newTweetURL = () => {
+//     const params = {
+//       text: "I've created a new NFT artwork on Metaplex, check it out!",
+//       url: `${
+//         window.location.origin
+//       }/#/art/${props.nft?.metadataAccount.toString()}`,
+//       hashtags: 'NFT,Crypto,Metaplex',
+//       // via: "Metaplex",
+//       related: 'Metaplex,Solana',
+//     };
+//     const queryParams = new URLSearchParams(params).toString();
+//     return `https://twitter.com/intent/tweet?${queryParams}`;
+//   };
 
-  return (
-    <>
-      <div className="waiting-title">Congratulations, you created an NFT!</div>
-      <br />
-      <br />
-      <Row className="content-action w-100" justify="space-around">
-        <Col span="10" className="section" style={{ minWidth: 300 }}>
-          <Row className="w-100" justify="space-around">
-            <Col>
-            {props.attributes.image && (
-              <ArtCard
-                image={image}
-                animationURL={animation_url}
-                category={props.attributes.properties?.category}
-                name={props.attributes.name}
-                symbol={props.attributes.symbol}
-                small={false}
-              />
-            )}
-            </Col>
-            <Col span="18">
-              <Divider />
-              <Statistic
-                className="create-statistic"
-                title="Royalty Percentage"
-                value={props.attributes.seller_fee_basis_points / 100}
-                precision={2}
-                suffix="%"
-                />
-              <AmountLabel title="Cost to Create" amount={props.cost} />
-            </Col>
-          </Row>
-        </Col>
-        <Col span="10">
-          {props.attributes.attributes && (
-            <>
-              <div className="info-header">Attributes</div>
-              <List size="large" grid={{ column: 4 }}>
-                {props.attributes.attributes?.map((attribute, index) => (
-                  <List.Item>
-                    <Card title={attribute.trait_type} key={index}>
-                      {attribute.value}
-                    </Card>
-                  </List.Item>
-                ))}
-              </List>
-            </>
-          )}
-        </Col>
-      </Row>
-      <Divider />
-      <br />
-      <div className="congrats-button-container">
-        <Button
-          className="metaplex-button"
-          onClick={_ => window.open(newTweetURL(), '_blank')}
-        >
-          <span>Share it on Twitter</span>
-          <span>&gt;</span>
-        </Button>
-        <Button
-          className="metaplex-button"
-          onClick={_ =>
-            history.push(`/art/${props.nft?.metadataAccount.toString()}`)
-          }
-        >
-          <span>See it in your collection</span>
-          <span>&gt;</span>
-        </Button>
-        <Button
-          className="metaplex-button"
-          onClick={_ => history.push('/auction/create')}
-        >
-          <span>Sell it via auction</span>
-          <span>&gt;</span>
-        </Button>
-      </div>
-      <Confetti />
-    </>
-  );
-};
+//   return (
+//     <>
+//       <div className="waiting-title">Congratulations, you created an NFT!</div>
+//       <br />
+//       <br />
+//       <Row className="content-action w-100" justify="space-around">
+//         <Col span="10" className="section" style={{ minWidth: 300 }}>
+//           <Row className="w-100" justify="space-around">
+//             <Col>
+//             {props.attributes.image && (
+//               <ArtCard
+//                 image={image}
+//                 animationURL={animation_url}
+//                 category={props.attributes.properties?.category}
+//                 name={props.attributes.name}
+//                 symbol={props.attributes.symbol}
+//                 small={false}
+//               />
+//             )}
+//             </Col>
+//             <Col span="18">
+//               <Divider />
+//               <Statistic
+//                 className="create-statistic"
+//                 title="Royalty Percentage"
+//                 value={props.attributes.seller_fee_basis_points / 100}
+//                 precision={2}
+//                 suffix="%"
+//                 />
+//               <AmountLabel title="Cost to Create" amount={props.cost} />
+//             </Col>
+//           </Row>
+//         </Col>
+//         <Col span="10">
+//           {props.attributes.attributes && (
+//             <>
+//               <div className="info-header">Attributes</div>
+//               <List size="large" grid={{ column: 4 }}>
+//                 {props.attributes.attributes?.map((attribute, index) => (
+//                   <List.Item>
+//                     <Card title={attribute.trait_type} key={index}>
+//                       {attribute.value}
+//                     </Card>
+//                   </List.Item>
+//                 ))}
+//               </List>
+//             </>
+//           )}
+//         </Col>
+//       </Row>
+//       <Divider />
+//       <br />
+//       <div className="congrats-button-container">
+//         <Button
+//           className="metaplex-button"
+//           onClick={_ => window.open(newTweetURL(), '_blank')}
+//         >
+//           <span>Share it on Twitter</span>
+//           <span>&gt;</span>
+//         </Button>
+//         <Button
+//           className="metaplex-button"
+//           onClick={_ =>
+//             history.push(`/art/${props.nft?.metadataAccount.toString()}`)
+//           }
+//         >
+//           <span>See it in your collection</span>
+//           <span>&gt;</span>
+//         </Button>
+//         <Button
+//           className="metaplex-button"
+//           onClick={_ => history.push('/auction/create')}
+//         >
+//           <span>Sell it via auction</span>
+//           <span>&gt;</span>
+//         </Button>
+//       </div>
+//       <Confetti />
+//     </>
+//   );
+// };

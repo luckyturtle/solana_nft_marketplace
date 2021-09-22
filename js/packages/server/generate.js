@@ -3,9 +3,14 @@ const { createCanvas, loadImage } = require("canvas");
 const { layers, width, height } = require("./assets/config.js");
 const canvas = createCanvas(width, height);
 const ctx = canvas.getContext("2d");
+const canvas_pog = createCanvas(width, height);
+const ctx_pog = canvas_pog.getContext("2d");
+ctx.fillStyle = 'transparent';
+ctx.fillRect(0, 0, width, height);
 let data = {};
 
-const saveLayer = async (_canvas, _edition) => {
+const saveLayer = async (_canvas, _edition, _canvas_pog) => {
+  await fs.writeFileSync(`./assets/temp/${_edition}_pog.png`, _canvas_pog.toBuffer("image/png"));
   await fs.writeFileSync(`./assets/temp/${_edition}.png`, _canvas.toBuffer("image/png"));
 };
 
@@ -52,7 +57,15 @@ const drawLayer = async (_layer, _edition, data, aura, type, symbol, variety) =>
     _layer.size.width,
     _layer.size.height
   );
-  saveLayer(canvas, _edition);
+  if (_layer.id !== 1) 
+    ctx_pog.drawImage(
+      image,
+      _layer.position.x,
+      _layer.position.y,
+      _layer.size.width,
+      _layer.size.height
+    );
+  saveLayer(canvas, _edition, canvas_pog);
 };
 
 const generateArt = () => {
