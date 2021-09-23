@@ -29,6 +29,7 @@ import {
 } from './loadAccounts';
 import { onChangeAccount } from './onChangeAccount';
 import { needMetadataUpdate, setNeedMetadataUpdate } from '../../actions/nft';
+import { useCoingecko } from '..';
 
 const MetaContext = React.createContext<MetaContextState>({
   metadata: [],
@@ -91,6 +92,7 @@ export function MetaProvider({ children = null as any }) {
   const [needUpdate, setNeedUpdate] = useState(false);
   /// customize
   const { publicKey } = useWallet();
+  const { updateTotalNFTs } = useCoingecko();
   ///
   const updateMints = useCallback(
     async metadataByMint => {
@@ -118,7 +120,8 @@ export function MetaProvider({ children = null as any }) {
       if (needUpdate) {
         console.log('-----> Update Query started');
 
-        const nextState = await loadAccounts(connection, all, publicKey?.toBase58());
+        const { nextState, totalNFTs } = await loadAccounts(connection, all, publicKey?.toBase58());
+        updateTotalNFTs(totalNFTs);
 
         console.log('-------> Update Query finished');
 
@@ -146,7 +149,8 @@ export function MetaProvider({ children = null as any }) {
         
           console.log('-----> Query started');
 
-          const nextState = await loadAccounts(connection, all, publicKey?.toBase58());
+          const { nextState, totalNFTs } = await loadAccounts(connection, all, publicKey?.toBase58());
+          updateTotalNFTs(totalNFTs);
 
           console.log('------->Query finished');
 

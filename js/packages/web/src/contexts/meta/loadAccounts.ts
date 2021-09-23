@@ -159,17 +159,8 @@ export const loadAccounts = async (connection: Connection, all: boolean, publicK
       } else {
         console.log('pulling optimized nfts');
 
-        /// customized
-        let amICreator = false;
-        ///
-
         for (let i = 0; i < MAX_CREATOR_LIMIT; i++) {
-          for (let j = 0; j < whitelistedCreators.length; j++) {
-            /// customize
-            if (!amICreator && publicKey?.toString() === whitelistedCreators[j].info.address) {
-              amICreator = true;
-            }
-            ///
+          // for (let j = 0; j < whitelistedCreators.length; j++) {
             additionalPromises.push(
               getProgramAccounts(connection, METADATA_PROGRAM_ID, {
                 filters: [
@@ -189,45 +180,13 @@ export const loadAccounts = async (connection: Connection, all: boolean, publicK
                         1 + // whether or not there is a creators vec
                         4 + // creators vec length
                         i * MAX_CREATOR_LEN,
-                      bytes: whitelistedCreators[j].info.address,
+                      bytes: `${process.env.NEXT_PUBLIC_STORE_OWNER_ADDRESS}`//whitelistedCreators[j].info.address,
                     },
                   },
                 ],
               }).then(forEach(processMetaData)),
             );
           }
-
-          ///customized
-          if (!amICreator) {
-            additionalPromises.push(
-              getProgramAccounts(connection, METADATA_PROGRAM_ID, {
-                filters: [
-                  {
-                    memcmp: {
-                      offset:
-                        1 + // key
-                        32 + // update auth
-                        32 + // mint
-                        4 + // name string length
-                        MAX_NAME_LENGTH + // name
-                        4 + // uri string length
-                        MAX_URI_LENGTH + // uri
-                        4 + // symbol string length
-                        MAX_SYMBOL_LENGTH + // symbol
-                        2 + // seller fee basis points
-                        1 + // whether or not there is a creators vec
-                        4 + // creators vec length
-                        i * MAX_CREATOR_LEN,
-                      bytes: publicKey?.toString(),
-                    },
-                  },
-                ],
-              }).then(forEach(processMetaData)),
-            );
-            amICreator = true;
-          }
-          ///
-        }
       }
     }),
   ];
@@ -236,7 +195,6 @@ export const loadAccounts = async (connection: Connection, all: boolean, publicK
 
   await postProcessMetadata(tempCache, all);
   console.log('Metadata size', tempCache.metadata.length);
-
   if (additionalPromises.length > 0) {
     console.log('Pulling editions for optimized metadata');
     let setOf100MetadataEditionKeys: string[] = [];
@@ -305,7 +263,7 @@ export const loadAccounts = async (connection: Connection, all: boolean, publicK
     );
   }
 
-  return tempCache;
+  return { nextState: tempCache, totalNFTs: tempCache.metadata.length };
 };
 
 export const makeSetter =

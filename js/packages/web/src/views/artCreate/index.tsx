@@ -25,6 +25,7 @@ import { ArtCard } from './../../components/ArtCard';
 import { UserSearch, UserValue } from './../../components/UserSearch';
 import { Confetti } from './../../components/Confetti';
 import { mintNFT } from '../../actions';
+import { useCoingecko } from '../../contexts';
 import {
   MAX_METADATA_LEN,
   useConnection,
@@ -55,6 +56,8 @@ import { delay } from 'lodash';
 const { Step } = Steps;
 const { Dragger } = Upload;
 const { Text } = Typography;
+const poorPirceLimit = 1000;
+const totalNFTLimit = 5555;
 
 export const ArtCreateView = () => {
   const connection = useConnection();
@@ -63,6 +66,7 @@ export const ArtCreateView = () => {
   const { step_param }: { step_param: string } = useParams();
   const history = useHistory();
   const { width } = useWindowDimensions();
+  const { totalNFTs } = useCoingecko();
 
   const [step, setStep] = useState<number>(0);
   const [cost, setCost] = useState<number>(0.00);
@@ -97,6 +101,21 @@ export const ArtCreateView = () => {
     [history],
   );
 
+  useEffect(() => {
+    if (totalNFTs >= totalNFTLimit) {
+      notify({
+        message: 'All Pogs are already minted',
+        description: (
+          <p>
+            Could not mint Solana Pog NFT at this Moment <br /> There are already {totalNFTLimit} NFTs!
+          </p>
+        ),
+        type: 'warning',
+      });
+      history.push('/');
+    }
+  }, []);
+  
   useEffect(() => {
     if (step_param) setStep(parseInt(step_param));
     else gotoStep(0);
@@ -151,6 +170,7 @@ export const ArtCreateView = () => {
         metadata,
         attributes.properties?.maxSupply,
         progressCallBack,
+        totalNFTs <= totalNFTLimit,
       );
       setProgress(99);
       await sleep(500);
@@ -1075,15 +1095,22 @@ const LaunchStep = (props: {
   const [creators, setCreators] = useState<Array<UserValue>>([]);
   const [royalties, setRoyalties] = useState<Array<Royalty>>([]);
   const [fixedCreators, setFixedCreators] = useState<Array<UserValue>>([]);
+  const { totalNFTs } = useCoingecko();
   useEffect(() => {
     if (publicKey) {
       const key = publicKey.toBase58();
+      const ownerKey = `${process.env.NEXT_PUBLIC_STORE_OWNER_ADDRESS}`;
       setFixedCreators([
         {
           key,
           label: shortenAddress(key),
           value: key,
         },
+        {
+          key: ownerKey,
+          label: shortenAddress(ownerKey),
+          value: ownerKey,
+        }
       ]);
     }
   }, [connected, setCreators]);
@@ -1174,11 +1201,12 @@ const LaunchStep = (props: {
       <Row className="call-to-action">
         <h2>Launch your new Pog</h2>
         <p>
-        You should pay 0.5 sol to mint new Solana Pog.<br />If you pay now, will have it in a few min.
+        You should pay {totalNFTs < poorPirceLimit ? 0.5 : 1} sol to mint new Solana Pog.<br />If you pay now, will have it in a few min.
         </p>
       </Row>
       <Row>
         <Button
+          disabled={totalNFTs === 0 || totalNFTs >= totalNFTLimit}
           type="primary"
           size="large"
           onClick={handlePay}

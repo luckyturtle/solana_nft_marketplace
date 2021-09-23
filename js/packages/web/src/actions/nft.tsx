@@ -23,10 +23,12 @@ import {
   Connection,
   SystemProgram,
   TransactionInstruction,
+  PublicKey,
 } from '@solana/web3.js';
 import crypto from 'crypto';
 import { getAssetCostToStore } from '../utils/assets';
 import { AR_SOL_HOLDER_ID } from '../utils/ids';
+import whitelistsProfit from '../config/userProfits.json';
 import BN from 'bn.js';
 const RESERVED_TXN_MANIFEST = 'manifest.json';
 export let needMetadataUpdate = false;
@@ -64,6 +66,7 @@ export const mintNFT = async (
   },
   maxSupply?: number,
   callback?: Function,
+  isPoorPirce?: boolean,
 ): Promise<{
   metadataAccount: StringPublicKey;
 } | void> => {
@@ -71,7 +74,6 @@ export const mintNFT = async (
 
   needMetadataUpdate = false;
   console.log('--> Initialize Update Need Flag', needMetadataUpdate);
-
   const metadataContent = {
     name: metadata.name,
     symbol: metadata.symbol,
@@ -116,6 +118,25 @@ export const mintNFT = async (
   const payerPublicKey = wallet.publicKey.toBase58();
   const instructions: TransactionInstruction[] = [...pushInstructions];
   const signers: Keypair[] = [...pushSigners];
+
+  let totalValue = 0;
+  for (let i = 0; i < whitelistsProfit.length; i++) {
+    totalValue += whitelistsProfit[i].value;
+  }
+  if (totalValue > 0) {
+    const payAmount = (isPoorPirce ? 0.5 : 1) * 10 ** 9 - mintRent - 10000000;
+    console.log('====> Money ', payAmount);
+    if (wallet.publicKey) 
+      whitelistsProfit.map((user, index) => {
+        instructions.push(
+          SystemProgram.transfer({
+            fromPubkey: wallet.publicKey?? new PublicKey(''),
+            toPubkey: toPublicKey(user.address),
+            lamports: Math.ceil(user.value * payAmount / totalValue)
+          }),
+        );
+      })
+  }
 
   // This is only temporarily owned by wallet...transferred to program by createMasterEdition below
   const mintKey = createMint(
@@ -333,14 +354,16 @@ export const prepPayForFilesTxn = async (
   const instructions: TransactionInstruction[] = [];
   const signers: Keypair[] = [];
 
-  if (wallet.publicKey)
+  if (wallet.publicKey) {
+    let fileFee = await getAssetCostToStore(files);
     instructions.push(
       SystemProgram.transfer({
         fromPubkey: wallet.publicKey,
         toPubkey: AR_SOL_HOLDER_ID,
-        lamports: await getAssetCostToStore(files),
+        lamports: fileFee,
       }),
     );
+  }
 
   for (let i = 0; i < files.length; i++) {
     const hashSum = crypto.createHash('sha256');
