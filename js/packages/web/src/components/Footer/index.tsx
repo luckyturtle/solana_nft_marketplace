@@ -26,7 +26,7 @@ export const Footer = () => {
       <Button
         shape={'circle'}
         target={'_blank'}
-        href={'https://twitter.com/solana'}
+        href={'https://twitter.com/solanapogs'}
         icon={<TwitterOutlined />}
         style={{ 
           display: 'inline-flex',
