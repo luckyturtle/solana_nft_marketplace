@@ -9,7 +9,7 @@ export const Footer = () => {
         textAlign: 'center',
         marginTop: '1rem',
       }}>
-      SOLANA POGS: The first NFTs on Solana!
+      {/* SOLANA POGS: The first NFTs on Solana! */}
       </Col>
       <Button
         shape={'circle'}
