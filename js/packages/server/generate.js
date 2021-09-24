@@ -47,7 +47,7 @@ const drawLayer = async (_layer, _edition, data, aura, type, symbol, variety) =>
     index++;
   }
 
-  data.attributes.push({ trait_type: _layer.name, value: elements[index].name });
+  data.attributes.push({ trait_type: _layer.name, value: elements[index].label });
   data.rarity *= rarity * elements[index].rarity;
   const image = await loadImage(`${parent.location}${elements[index].name}.png`);
   ctx.drawImage(
@@ -79,9 +79,9 @@ const generateArt = () => {
     data = {
       name: type.toUpperCase(),//i.toString(),
       attributes: [
-        { trait_type: "Aura", value: aura },
-        { trait_type: "Type", value: type },
-        { trait_type: "Symbol", value: symbol },
+        { trait_type: "AuraState", value: aura == 'has' ? 'Has' : 'None' },
+        { trait_type: "Type", value: type == 'slammer' ? 'Slammer' : 'Pog' },
+        { trait_type: "SymbolState", value: symbol == 'has' ? 'Has' : 'None' },
       ],
       image: timestamp+'.png' ,
       rarity: 1
