@@ -65,6 +65,7 @@ const drawLayer = async (_layer, _edition, data, aura, type, symbol, variety) =>
       _layer.size.width,
       _layer.size.height
     );
+  else ctx_pog.clearRect(0, 0, canvas.width, canvas.height);
   saveLayer(canvas, _edition, canvas_pog);
 };
 
@@ -79,9 +80,9 @@ const generateArt = () => {
     data = {
       name: type.toUpperCase(),//i.toString(),
       attributes: [
-        { trait_type: "AuraState", value: aura == 'has' ? 'Has' : 'None' },
-        { trait_type: "Type", value: type == 'slammer' ? 'Slammer' : 'Pog' },
-        { trait_type: "SymbolState", value: symbol == 'has' ? 'Has' : 'None' },
+        { trait_type: "AuraState", value: aura == 'has' ? 'Present' : 'None' },
+        { trait_type: "TypeState", value: type == 'slammer' ? 'Slammer' : 'Pog' },
+        { trait_type: "SymbolState", value: symbol == 'has' ? 'Present' : 'None' },
       ],
       image: timestamp+'.png' ,
       rarity: 1
