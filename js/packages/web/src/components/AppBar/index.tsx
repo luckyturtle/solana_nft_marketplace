@@ -32,11 +32,11 @@ const UserActions = () => {
               <Button className="app-btn">MINT</Button>
             </Link>
           ) : null}
-          <Link to={`/`}>{/*/auction/create/0`}>*/}
+          {/* <Link to={`/`}>
             <Button className="connector" type="primary">
               SELL
             </Button>
-          </Link>
+          </Link> */}
         </>
       )}
     </>
@@ -69,9 +69,9 @@ const DefaultActions = ({ vertical = false }: { vertical?: boolean }) => {
       <Link to={`/leaderboard`}>
         <Button className="app-btn">LEADERBOARD</Button>
       </Link>
-      <Link to={`/marketplace`}>
+      {/* <Link to={`/marketplace`}>
         <Button className="app-btn">MARKETPLACE</Button>
-      </Link>
+      </Link> */}
     </div>
   );
 };

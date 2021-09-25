@@ -56,7 +56,7 @@ import { delay } from 'lodash';
 const { Step } = Steps;
 const { Dragger } = Upload;
 const { Text } = Typography;
-const poorPirceLimit = 1000;
+const poorPirceLimit = 4555;
 const totalNFTLimit = 5555;
 
 export const ArtCreateView = () => {
@@ -1199,9 +1199,9 @@ const LaunchStep = (props: {
   return (
     <>
       <Row className="call-to-action">
-        <h2>Launch your new Pog</h2>
+        <h2>Mint your Solana Pogs NFT</h2>
         <p>
-        You should pay {totalNFTs < poorPirceLimit ? 0.5 : 1} sol to mint new Solana Pog.<br />If you pay now, will have it in a few min.
+        Current Minting Price:  {totalNFTs < poorPirceLimit ? 0.5 : 1} SOL {totalNFTs}/5555 Solana Pogs NFTs remain
         </p>
       </Row>
       <Row>
@@ -1214,14 +1214,14 @@ const LaunchStep = (props: {
         >
           Pay with SOL
         </Button>
-        <Button
+        {/* <Button
           disabled={true}
           size="large"
           onClick={handlePay}
           className="action-btn"
         >
           Pay with Credit Card
-        </Button>
+        </Button> */}
       </Row>
     </>
   );
@@ -1343,13 +1343,13 @@ const WaitingStep = (props: {
             fontSize: width < 865 ? '1rem' : '2rem',
             zIndex: 0,
           }}>
-            Your creation is being uploaded to the decentralized web...
+            Minting in progress...
           </div>
           <div className="waiting-subtitle" style={{
             fontSize: width < 865 ? '0.8rem' : '1rem',
             zIndex: 0,
           }}>
-            This can take up to 1 minute.
+            IMPORTANT: Do not leave this page. You will need to approve again to receive your NFT
           </div>
         </>
       ) : (
