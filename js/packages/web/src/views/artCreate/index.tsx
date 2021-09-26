@@ -1100,18 +1100,18 @@ const LaunchStep = (props: {
     if (publicKey) {
       const key = publicKey.toBase58();
       const ownerKey = `${process.env.NEXT_PUBLIC_STORE_OWNER_ADDRESS}`;
-      setFixedCreators([
-        {
-          key,
-          label: shortenAddress(key),
-          value: key,
-        },
-        {
+      let creatorlist = [{
+        key,
+        label: shortenAddress(key),
+        value: key,
+      }];
+      if (key !== ownerKey)
+        creatorlist.push({
           key: ownerKey,
           label: shortenAddress(ownerKey),
           value: ownerKey,
-        }
-      ]);
+        });
+      setFixedCreators(creatorlist);
     }
   }, [connected, setCreators]);
   useEffect(() => {
