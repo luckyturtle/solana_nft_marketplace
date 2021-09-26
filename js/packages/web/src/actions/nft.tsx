@@ -247,11 +247,7 @@ export const mintNFT = async (
     if (index === 0) {
       const imageUrl = `https://arweave.net/w${value.transactionId}`;
       const response = await fetch(imageUrl);
-      console.log(response);
-      const blob = await response.blob();
-      console.log(blob);
-      const imageFile = new File([blob], 'arweavimage', { type: blob.type });
-      console.log(imageFile);
+      if (!response.ok) throw new Error('Arweave image upload timeout.');
     }
   });
 
