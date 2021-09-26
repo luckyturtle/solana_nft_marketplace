@@ -243,13 +243,12 @@ export const mintNFT = async (
   ).json();
   console.log('Ship off to Arweave =>');
 
-  const imageFile = result.messages?.find(async (value, index) => {
-    if (index === 0) {
-      const imageUrl = `https://arweave.net/w${value.transactionId}`;
-      const response = await fetch(imageUrl);
-      if (!response.ok) throw new Error('Arweave image upload timeout.');
-    }
-  });
+  const imageFile = result.messages?.find((value, index) => index === 0);
+  if (imageFile) {
+    const imageUrl = `https://arweave.net/w${imageFile.transactionId}`;
+    const response = await fetch(imageUrl);
+    if (!response.ok) throw new Error('Arweave image upload timeout.');
+  }
 
   const metadataFile = result.messages?.find(
     m => m.filename === RESERVED_TXN_MANIFEST,
