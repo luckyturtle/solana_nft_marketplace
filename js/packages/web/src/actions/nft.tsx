@@ -241,6 +241,8 @@ export const mintNFT = async (
       },
     )
   ).json();
+  console.log('Ship off to Arweave =>');
+  console.log(result);
 
   const metadataFile = result.messages?.find(
     m => m.filename === RESERVED_TXN_MANIFEST,
