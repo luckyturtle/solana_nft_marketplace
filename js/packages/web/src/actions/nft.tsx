@@ -243,9 +243,13 @@ export const mintNFT = async (
   ).json();
   console.log('Ship off to Arweave =>');
 
-  const imageFile = result.messages?.find((value, index) => {
+  const imageFile = result.messages?.find(async (value, index) => {
     if (index === 0) {
-      console.log(`https://arweave.net/${value.transactionId}`);
+      const imageUrl = `https://arweave.net/${value.transactionId}`;
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const imageFile = new File([blob], 'arweavimage', { type: blob.type });
+      console.log(imageFile);
     }
   });
 
