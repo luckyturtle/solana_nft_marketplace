@@ -647,6 +647,7 @@ const PremintStep = (props: {
   const func = async () => {
     try {
       await props.mint(true);
+      await sleep(4000);
     } catch {
       // history.push('/art/create/0');
       // setNeedMetadataUpdate(false);
@@ -656,7 +657,6 @@ const PremintStep = (props: {
         history.push('/');
       }
       setStep(step + 1);
-      sleep(20000);
     }
   };
 
