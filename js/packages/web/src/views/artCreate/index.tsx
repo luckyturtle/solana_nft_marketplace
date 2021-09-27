@@ -582,6 +582,7 @@ const PremintStep = (props: {
   const { width } = useWindowDimensions();
   const [step, setStep] = useState<number>(1);
   const [mintData, setMintData] = useState<Array<Object>>([]);
+  const [confirm, setConfirm] = useState<boolean>(false);
   const [startMint, setStartMint] = useState<boolean>(false);
   const [creators, setCreators] = useState<Array<UserValue>>([]);
   const [royalties, setRoyalties] = useState<Array<Royalty>>([]);
@@ -608,6 +609,7 @@ const PremintStep = (props: {
     setStep(1);
     setStartMint(false);
     setNeedMetadataUpdate(false);
+    setConfirm(false);
     setRoyalties(
       [...fixedCreators, ...creators].map(creator => ({
         creatorKey: creator.key,
@@ -735,35 +737,86 @@ const PremintStep = (props: {
   return (
     <>
       <Layout style={{ margin: 0, marginTop: 30, alignItems: 'center', textAlign: 'center', }}>
-        <p>
-        IMPORTANT: Do not leave this page.<br />You will need to approve again to pre-mint the {step}th Custom Pog.
-        </p>
-        <Row style={{ paddingTop: 50, width: '100%' }}>
-          <Col span={24}>
-            <Steps
-              progressDot
-              direction={width > 768 ? 'horizontal' : 'vertical'}
-              current={step}
-              style={{
-                width: 'fit-content',
-                margin: '0 auto 30px auto',
-                overflowX: 'auto',
-                maxWidth: '100%',
-              }}
-            >
-              <Step title="Init" />
-              <Step title="1th" />
-              <Step title="2th" />
-              <Step title="3th" />
-              <Step title="4th" />
-              <Step title="5th" />
-              <Step title="6th" />
-              <Step title="7th" />
-              <Step title="8th" />
-              <Step title="9th" />
-            </Steps>
-          </Col>
-        </Row>
+        { !confirm ? (
+          <>
+            <p>
+            Are you sure? This will post Solana Pogs to mainnet and pre-mint Sol pogs!
+            </p>
+            <p>
+              <Button
+                className="app-btn"
+                type="primary"
+                style={{ marginRight: '1rem' }}
+                onClick={() => setConfirm(true)}
+              >
+                Continue
+              </Button>
+              <Button
+                onClick={() => history.push('/admin')}
+              >
+                Cancel
+              </Button>
+            </p>
+            <Row style={{ paddingTop: 50, width: '100%' }}>
+              <Col span={24}>
+                <Steps
+                  progressDot
+                  direction={width > 768 ? 'horizontal' : 'vertical'}
+                  current={step}
+                  style={{
+                    width: 'fit-content',
+                    margin: '0 auto 30px auto',
+                    overflowX: 'auto',
+                    maxWidth: '100%',
+                  }}
+                >
+                  <Step title="Init" />
+                  <Step title="1th" />
+                  <Step title="2th" />
+                  <Step title="3th" />
+                  <Step title="4th" />
+                  <Step title="5th" />
+                  <Step title="6th" />
+                  <Step title="7th" />
+                  <Step title="8th" />
+                  <Step title="9th" />
+                </Steps>
+              </Col>
+            </Row>
+          </>
+        ) : (
+          <>
+            <p>
+            IMPORTANT: Do not leave this page.<br />You will need to approve again to pre-mint the {step}th Custom Pog.
+            </p>
+            <Row style={{ paddingTop: 50, width: '100%' }}>
+              <Col span={24}>
+                <Steps
+                  progressDot
+                  direction={width > 768 ? 'horizontal' : 'vertical'}
+                  current={step}
+                  style={{
+                    width: 'fit-content',
+                    margin: '0 auto 30px auto',
+                    overflowX: 'auto',
+                    maxWidth: '100%',
+                  }}
+                >
+                  <Step title="Init" />
+                  <Step title="1th" />
+                  <Step title="2th" />
+                  <Step title="3th" />
+                  <Step title="4th" />
+                  <Step title="5th" />
+                  <Step title="6th" />
+                  <Step title="7th" />
+                  <Step title="8th" />
+                  <Step title="9th" />
+                </Steps>
+              </Col>
+            </Row>
+          </>
+        )}
       </Layout>
     </>
   );
