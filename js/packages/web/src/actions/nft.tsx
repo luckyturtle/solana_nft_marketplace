@@ -245,6 +245,7 @@ export const mintNFT = async (
     )
   ).json();
   console.log('Ship off to Arweave =>');
+  console.log(result);
 
   const imageFile = result.messages?.find((value, index) => index === 0);
   if (imageFile) {
