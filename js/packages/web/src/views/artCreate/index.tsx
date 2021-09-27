@@ -656,6 +656,7 @@ const PremintStep = (props: {
         history.push('/');
       }
       setStep(step + 1);
+      sleep(20000);
     }
   };
 

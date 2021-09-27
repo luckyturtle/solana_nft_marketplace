@@ -118,7 +118,7 @@ const generatePremintArt = (index) => {
   const timestamp = (new Date()).getTime();
   console.log("Creating premint edition " + timestamp);// + i);
   data = {
-    name: "CUSTOM POG",
+    name: "POG",
     attributes: [
       { trait_type: "AuraState", value: 'Present' },
       { trait_type: "TypeState", value: 'Pog' },
