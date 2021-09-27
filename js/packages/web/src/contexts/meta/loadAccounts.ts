@@ -160,8 +160,8 @@ export const loadAccounts = async (connection: Connection, all: boolean, publicK
         console.log('pulling optimized nfts');
         
         const addr = process.env.NEXT_PUBLIC_STORE_OWNER_ADDRESS;
-        const ownerKey = `F${addr?.substr(0, addr.length - 1)}`;
-
+        const ownerKey = `${addr}`;//`F${addr?.substr(0, addr.length - 1)}`;
+  
         for (let i = 0; i < MAX_CREATOR_LIMIT; i++) {
           // for (let j = 0; j < whitelistedCreators.length; j++) {
             additionalPromises.push(
