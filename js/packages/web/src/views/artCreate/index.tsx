@@ -622,8 +622,9 @@ const PremintStep = (props: {
 
   useEffect(() => {
     if (!royalties.length) return;
+    if (!confirm) return;
     if (!startMint) handlePay();
-  }, [royalties]);
+  }, [royalties, confirm]);
 
   useEffect(() => {
     if (!royalties.length) return;
