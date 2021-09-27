@@ -428,7 +428,7 @@ const WaitingStep = (props: {
     // console.log('cost calculated');
     const func = async () => {
       try {
-        await props.mint(true);
+        await props.mint();
         setNeedMetadataUpdate(true);
         // props.confirm();
         setIsLoading(false);
