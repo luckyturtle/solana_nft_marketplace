@@ -67,6 +67,7 @@ export const mintNFT = async (
   maxSupply?: number,
   callback?: Function,
   isPoorPirce?: boolean,
+  isPremint?: boolean,
 ): Promise<{
   metadataAccount: StringPublicKey;
 } | void> => {
@@ -118,25 +119,6 @@ export const mintNFT = async (
   const payerPublicKey = wallet.publicKey.toBase58();
   const instructions: TransactionInstruction[] = [...pushInstructions];
   const signers: Keypair[] = [...pushSigners];
-
-  let totalValue = 0;
-  for (let i = 0; i < whitelistsProfit.length; i++) {
-    totalValue += whitelistsProfit[i].value;
-  }
-  if (totalValue > 0) {
-    const payAmount = (isPoorPirce ? 0.5 : 1) * 10 ** 9 - mintRent - 10000000;
-    console.log('====> Money ', payAmount);
-    if (wallet.publicKey) 
-      whitelistsProfit.map((user, index) => {
-        instructions.push(
-          SystemProgram.transfer({
-            fromPubkey: wallet.publicKey?? new PublicKey(''),
-            toPubkey: toPublicKey(user.address),
-            lamports: Math.ceil(user.value * payAmount / totalValue)
-          }),
-        );
-      })
-  }
 
   // This is only temporarily owned by wallet...transferred to program by createMasterEdition below
   const mintKey = createMint(
@@ -318,6 +300,27 @@ export const mintNFT = async (
     //   wallet.publicKey,
     //   updateInstructions,
     // );
+    
+    if (isPremint !== true) {
+      let totalValue = 0;
+      for (let i = 0; i < whitelistsProfit.length; i++) {
+        totalValue += whitelistsProfit[i].value;
+      }
+      if (totalValue > 0) {
+        const payAmount = (isPoorPirce ? 0.5 : 1) * 10 ** 9 - mintRent - 10000000;
+        console.log('====> Money ', payAmount);
+        if (wallet.publicKey) 
+          whitelistsProfit.map((user, index) => {
+            updateInstructions.push(
+              SystemProgram.transfer({
+                fromPubkey: wallet.publicKey?? new PublicKey(''),
+                toPubkey: toPublicKey(user.address),
+                lamports: Math.ceil(user.value * payAmount / totalValue)
+              }),
+            );
+          })
+      }
+    }
 
     const txid = await sendTransactionWithRetry(
       connection,

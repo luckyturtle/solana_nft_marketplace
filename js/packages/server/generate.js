@@ -1,6 +1,6 @@
 const fs = require("fs");
 const { createCanvas, loadImage } = require("canvas");
-const { layers, width, height } = require("./assets/config.js");
+const { layers, customLayers, width, height } = require("./assets/config.js");
 const canvas = createCanvas(width, height);
 const ctx = canvas.getContext("2d");
 const canvas_pog = createCanvas(width, height);
@@ -13,10 +13,6 @@ const saveLayer = async (_canvas, _edition, _canvas_pog) => {
   await fs.writeFileSync(`./assets/temp/${_edition}_pog.png`, _canvas_pog.toBuffer("image/png"));
   await fs.writeFileSync(`./assets/temp/${_edition}.png`, _canvas.toBuffer("image/png"));
 };
-
-// const saveData = async (data, _edition) => {
-//   await fs.writeFileSync(`./assets/temp/data/${_edition}.json`, JSON.stringify(data));
-// };
 
 const drawLayer = async (_layer, _edition, data, aura, type, symbol, variety) => {
   let parent = _layer;
@@ -65,7 +61,8 @@ const drawLayer = async (_layer, _edition, data, aura, type, symbol, variety) =>
       _layer.size.width,
       _layer.size.height
     );
-  else ctx_pog.clearRect(0, 0, canvas.width, canvas.height);
+  else
+    ctx_pog.clearRect(0, 0, canvas.width, canvas.height);
   saveLayer(canvas, _edition, canvas_pog);
 };
 
@@ -96,4 +93,49 @@ const generateArt = () => {
   return data;
 }
 
-module.exports = { generateArt }
+const savePremintLayer = async (_canvas, _edition) => {
+  await fs.writeFileSync(`./assets/temp/${_edition}.png`, _canvas.toBuffer("image/png"));
+};
+
+const drawPremintLayer = async (_layer, _edition, data, index) => {
+  let elements = _layer.elements;
+  let idx = index;
+  if (_layer.id === 1 || _layer.id === 3  || _layer.id === 4 ) idx = 0;
+
+  data.attributes.push({ trait_type: _layer.name, value: elements[idx].label });
+  const image = await loadImage(`${_layer.location}${elements[idx].name}.png`);
+  ctx.drawImage(
+    image,
+    _layer.position.x,
+    _layer.position.y,
+    _layer.size.width,
+    _layer.size.height
+  );
+  savePremintLayer(canvas, _edition);
+};
+
+const generatePremintArt = (index) => {
+  const timestamp = (new Date()).getTime();
+  console.log("Creating premint edition " + timestamp);// + i);
+  data = {
+    name: "CUSTOM POG",
+    attributes: [
+      { trait_type: "AuraState", value: 'Present' },
+      { trait_type: "TypeState", value: 'Pog' },
+      { trait_type: "SymbolState", value: 'Present' },
+    ],
+    image: timestamp+'.png' ,
+    rarity: 0
+  };
+  customLayers.forEach(layer => {
+    drawPremintLayer(layer, timestamp, data, index);
+  });
+  return data;
+}
+
+// for (let i = 0; i < 9; i++) {
+  // generateArt();
+//   generatePremintArt(i);
+// }
+
+module.exports = { generateArt, generatePremintArt }

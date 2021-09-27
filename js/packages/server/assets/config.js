@@ -3,6 +3,91 @@ const width = 1000;
 const height = 1000;
 const dir = __dirname;
 
+const customLayers = [
+  {
+    id: 1,
+    name: "Background",
+    location: `${dir}/backgrounds/`,
+    elements: [{name: 'background0', label: 'Background'}],
+    position: { x: 0, y: 0 },
+    size: { width: width, height: height },
+  },
+  {
+    id: 2,
+    name: "Aura",
+    location: `${dir}/auras/has/`,
+    elements: [
+      {name: 'aura4', label: 'Teal Aura'},
+      {name: 'aura7', label: 'Yellow Aura'},
+      {name: 'aura3', label: 'Blue Aura'},
+      {name: 'aura0', label: 'Red Aura'},
+      {name: 'aura2', label: 'Purple Aura'},
+      {name: 'aura0', label: 'Red Aura'},
+      {name: 'aura1', label: 'Pink Aura'},
+      {name: 'aura5', label: 'Green Aura'},
+      {name: 'aura3', label: 'Blue Aura'},
+    ],
+    position: { x: 0, y: 0 },
+    size: { width: width, height: height },
+  },
+  {
+    id: 3,
+    name: "Type",
+    location: `${dir}/types/pogs/`,
+    elements: [
+      {name: 'pog0', label: 'Pog'},
+    ],
+    position: { x: 0, y: 0 },
+    size: { width: width, height: height },
+  },
+  {
+    id: 4,
+    name: "Pattern",    
+    location: `${dir}/patterns/`,
+    elements: [
+      {name: 'empty', label: 'None'},
+    ],
+    position: { x: 0, y: 0 },
+    size: { width: width, height: height },
+  },
+  {
+    id: 5,
+    name: "Symbol",
+    location: `${dir}/customs/`,
+    elements: [
+      {name: '8ball', label: '8-ball'},
+      {name: 'aa23', label: 'AA23'},
+      {name: 'aces', label: 'Aces'},
+      {name: 'allin', label: 'All In'},
+      {name: 'arq', label: 'Arq'},
+      {name: 'joker', label: 'Joker'},
+      {name: 'pig', label: 'Pig'},
+      {name: 'sodapepeinski', label: 'SodaPepeinski'},
+      {name: 'whale', label: 'Whale'},
+    ],
+    position: { x: 0, y: 0 },
+    size: { width: width, height: height },
+  },
+  {
+    id: 6,
+    name: "Texture",
+    location: `${dir}/textures/`,
+    elements: [
+      {name: 'texture6', label: 'Heavy Wear'},
+      {name: 'texture3', label: 'Brushed'},
+      {name: 'texture1', label: 'Cracked'},
+      {name: 'texture4', label: 'Scuffed'},
+      {name: 'texture0', label: 'Gradient'},
+      {name: 'texture3', label: 'Brushed'},
+      {name: 'texture2', label: 'Foil'},
+      {name: 'texture5', label: 'Gloss'},
+      {name: 'texture5', label: 'Gloss'},
+    ],
+    position: { x: 0, y: 0 },
+    size: { width: width, height: height },
+  },
+];
+
 const layers = [
   {
     id: 1,
@@ -543,7 +628,7 @@ const layers = [
     name: "Texture",
     location: `${dir}/textures/`,
     elements: [
-      {name: 'texture0', label: 'Gradent', rarity: 0.142857},
+      {name: 'texture0', label: 'Gradient', rarity: 0.142857},
       {name: 'texture1', label: 'Cracked', rarity: 0.142857},
       {name: 'texture2', label: 'Foil', rarity: 0.142857},
       {name: 'texture3', label: 'Brushed', rarity: 0.142857},
@@ -556,4 +641,4 @@ const layers = [
   },
 ];
 
-module.exports = { layers, width, height };
+module.exports = { layers, customLayers, width, height };

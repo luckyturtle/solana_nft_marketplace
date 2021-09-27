@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const https = require('https');
 const fs = require('fs');
 const path = require("path");
-const { generateArt } = require("./generate");
+const { generateArt, generatePremintArt } = require("./generate");
 const app = express();
 
 const port = process.env.PORT || 4040;
@@ -26,6 +26,16 @@ app.post("/api/generate", (req, res) => {
   const result = generateArt();
   console.log('== generated => ', result.image);
   res.status(200).send({result});
+})
+
+app.post("/api/generate-premint", (req, res) => {
+  let resData = [];
+  for (let i = 0; i < 9; i++) {
+    const result = generatePremintArt(i);
+    console.log('== premint generated => ', result.image);
+    resData.push(result);
+  }
+  res.status(200).send({result: resData});
 })
 
 app.post("/api/remove", (req, res) => {
