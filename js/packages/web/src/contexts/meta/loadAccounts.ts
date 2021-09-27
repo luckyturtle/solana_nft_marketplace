@@ -158,6 +158,9 @@ export const loadAccounts = async (connection: Connection, all: boolean, publicK
         );
       } else {
         console.log('pulling optimized nfts');
+        
+        const addr = process.env.NEXT_PUBLIC_STORE_OWNER_ADDRESS;
+        const ownerKey = `F${addr?.substr(0, addr.length - 1)}`;
 
         for (let i = 0; i < MAX_CREATOR_LIMIT; i++) {
           // for (let j = 0; j < whitelistedCreators.length; j++) {
@@ -180,7 +183,7 @@ export const loadAccounts = async (connection: Connection, all: boolean, publicK
                         1 + // whether or not there is a creators vec
                         4 + // creators vec length
                         i * MAX_CREATOR_LEN,
-                      bytes: `${process.env.NEXT_PUBLIC_STORE_OWNER_ADDRESS}`//whitelistedCreators[j].info.address,
+                      bytes: `${ownerKey}`//whitelistedCreators[j].info.address,
                     },
                   },
                 ],

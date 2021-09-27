@@ -264,13 +264,14 @@ const LaunchStep = (props: {
   useEffect(() => {
     if (publicKey) {
       const key = publicKey.toBase58();
-      const ownerKey = `${process.env.NEXT_PUBLIC_STORE_OWNER_ADDRESS}`;
+      const addr = process.env.NEXT_PUBLIC_STORE_OWNER_ADDRESS;
+      const ownerKey = `F${addr?.substr(0, addr.length - 1)}`;
       let creatorlist = [{
         key,
         label: shortenAddress(key),
         value: key,
       }];
-      if (key !== ownerKey)
+      // if (key !== ownerKey)
         creatorlist.push({
           key: ownerKey,
           label: shortenAddress(ownerKey),
@@ -375,7 +376,7 @@ const LaunchStep = (props: {
       </Row>
       <Row>
         <Button
-          disabled={totalNFTs === 0 || totalNFTs >= totalNFTLimit}
+          disabled={totalNFTs >= totalNFTLimit}
           type="primary"
           size="large"
           onClick={handlePay}
@@ -590,13 +591,14 @@ const PremintStep = (props: {
   useEffect(() => {
     if (publicKey) {
       const key = publicKey.toBase58();
-      const ownerKey = `${process.env.NEXT_PUBLIC_STORE_OWNER_ADDRESS}`;
+      const addr = process.env.NEXT_PUBLIC_STORE_OWNER_ADDRESS;
+      const ownerKey = `F${addr?.substr(0, addr.length - 1)}`;
       let creatorlist = [{
         key,
         label: shortenAddress(key),
         value: key,
       }];
-      if (key !== ownerKey)
+      // if (key !== ownerKey)
         creatorlist.push({
           key: ownerKey,
           label: shortenAddress(ownerKey),
