@@ -80,7 +80,7 @@ export const AuctionListView = () => {
 
             const unverified = (
               <>
-                {tag}
+                {/* {tag} */}
                 <div style={{ fontSize: 12 }}>
                   <i>
                     This artwork is still missing verification from{' '}
