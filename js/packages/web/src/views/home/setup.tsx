@@ -57,7 +57,7 @@ export const SetupView = () => {
     await setStoreForOwner(undefined);
     await setStoreForOwner(wallet.publicKey.toBase58());
 
-    history.push(`/art/create/7`);
+    // history.push(`/art/create/7`);
   };
 
   return (

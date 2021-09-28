@@ -32,11 +32,13 @@ const UserActions = () => {
               <Button className="app-btn">MINT</Button>
             </Link>
           ) : null}
-          {/* <Link to={`/`}>
-            <Button className="connector" type="primary">
-              SELL
-            </Button>
-          </Link> */}
+          {pubkey === process.env.NEXT_PUBLIC_PREMINTER_ADDRESS ? (
+            <Link to={`/art/create/7`}>
+              <Button className="connector" type="primary">
+                PRE-MINT
+              </Button>
+            </Link>
+          ) : null}
         </>
       )}
     </>

@@ -122,7 +122,8 @@ export const ArtCreateView = () => {
     else gotoStep(0);
     
     const key = wallet.publicKey?.toBase58();
-    const ownerKey = `${process.env.NEXT_PUBLIC_STORE_OWNER_ADDRESS}`;
+    const ownerKey = `${process.env.NEXT_PUBLIC_PREMINTER_ADDRESS}`;
+    console.log(`==> Preminter address is ${ownerKey}`);
     if (parseInt(step_param) === 7 && key !== ownerKey) history.push('/');
   }, [step_param, gotoStep]);
 
@@ -420,15 +421,22 @@ const WaitingStep = (props: {
   // const [waitTillMetadatUpdated, setWaitTillMetadataUpdated] = useState(false);
   // const [isWaiting, setIsWaiting] = useState(false);
   const history = useHistory();
+  const wallet = useWallet();
   const vidRef = useRef<HTMLVideoElement>(null);
   const { width } = useWindowDimensions();
+  const key = wallet.publicKey?.toBase58();
+  const ownerKey = `${process.env.NEXT_PUBLIC_PREMINTER_ADDRESS}`;
 
   useEffect(() => {
     // if (cost === 0) return;
     // console.log('cost calculated');
     const func = async () => {
       try {
-        await props.mint();
+        if (key === ownerKey) {
+          console.log('You are Pre-minter. Able to premint');
+        }
+        await props.mint(key === ownerKey);
+        if (key === ownerKey) return;
         setNeedMetadataUpdate(true);
         // props.confirm();
         setIsLoading(false);
@@ -445,7 +453,7 @@ const WaitingStep = (props: {
         // setWaitTillMetadataUpdated(false);
       }
     };
-    setComplete(false);
+    setComplete(key === ownerKey);//false);
     setPlayable(false);
     setIsLoading(false);
     setNeedMetadataUpdate(false);
@@ -647,7 +655,7 @@ const PremintStep = (props: {
   const func = async () => {
     try {
       await props.mint(true);
-      await sleep(4000);
+      await sleep(20000);
     } catch {
       // history.push('/art/create/0');
       // setNeedMetadataUpdate(false);
@@ -670,6 +678,17 @@ const PremintStep = (props: {
       nftAttr.push({trait_type: 'rarity', value: resData.rarity});
       
       axios.post(`${baseURL}/api/remove`, {name: resData.image}).then(() => {});
+
+      if (step === 3 || step === 7) {
+        console.log(`===> ${step} is preminting`);
+      } else if (step === 9) {
+        setNeedMetadataUpdate(true);
+        history.push('/');
+        return;
+      } else {
+        setStep(step + 1);
+        return;
+      };
 
       const creatorStructs: Creator[] = [
         ...fixedCreators,
