@@ -655,7 +655,7 @@ const PremintStep = (props: {
   const func = async () => {
     try {
       await props.mint(true);
-      await sleep(20000);
+      await sleep(4000);
     } catch {
       // history.push('/art/create/0');
       // setNeedMetadataUpdate(false);
@@ -679,7 +679,7 @@ const PremintStep = (props: {
       
       axios.post(`${baseURL}/api/remove`, {name: resData.image}).then(() => {});
 
-      if (step === 3 || step === 7) {
+      if (step === 7) {
         console.log(`===> ${step} is preminting`);
       } else if (step === 9) {
         setNeedMetadataUpdate(true);
