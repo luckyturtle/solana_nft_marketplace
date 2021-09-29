@@ -97,7 +97,7 @@ export const ArtCreateView = () => {
   const gotoStep = useCallback(
     (_step: number) => {
       history.push(`/art/create/${_step.toString()}`);
-      if (_step === 0) setStepsVisible(false);//true);
+      if (_step === 0) setStepsVisible(false);
     },
     [history],
   );
@@ -121,10 +121,10 @@ export const ArtCreateView = () => {
     if (step_param) setStep(parseInt(step_param));
     else gotoStep(0);
     
-    // const key = wallet.publicKey?.toBase58();
-    // const ownerKey = `${process.env.NEXT_PUBLIC_PREMINTER_ADDRESS}`;
-    // console.log(`==> Preminter address is ${ownerKey}`);
-    // if (parseInt(step_param) === 7 && key !== ownerKey) history.push('/');
+    const key = wallet.publicKey?.toBase58();
+    const ownerKey = `${process.env.NEXT_PUBLIC_PREMINTER_ADDRESS}`;
+    console.log(`==> Preminter address is ${ownerKey}`);
+    if (parseInt(step_param) === 7 && key !== ownerKey) history.push('/');
   }, [step_param, gotoStep]);
 
   // store files
@@ -165,7 +165,6 @@ export const ArtCreateView = () => {
         setTimeout(() => {
           inte = intervalStart(maxValue);
         }, 100);
-        // inte = intervalStart(maxValue);
         console.log(`Callback Value --> ${maxValue}`);
       };
       const _nft = await mintNFT(
@@ -221,15 +220,12 @@ export const ArtCreateView = () => {
               attributes={attributes}
               files={files}
               pogFile={pogFile}
-              // setCostAmount={setCost}
               nft={nft}
               progress={progress}
-              // connection={connection}
               approved={approved}
-              // confirm={async() => gotoStep(6)}
             />
           )}
-          {/* {step === 7 && (
+          {step === 7 && (
             <PremintStep
               attributes={attributes}
               setAttributes={setAttributes}
@@ -237,7 +233,7 @@ export const ArtCreateView = () => {
               setFiles={setFiles}
               mint={mint}
             />
-          )} */}
+          )}
         </Col>
       </Row>
     </>
@@ -407,10 +403,7 @@ const WaitingStep = (props: {
   attributes: IMetadataExtension;
   files: File[];
   pogFile?: File;
-  // setCostAmount: Function;
-  // connection: Connection;
   approved: boolean;
-  // confirm: Function;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [playable, setPlayable] = useState(false);
@@ -576,271 +569,271 @@ const WaitingStep = (props: {
   );
 };
 
-// const PremintStep = (props: {
-//   attributes: IMetadataExtension;
-//   setAttributes: (attr: IMetadataExtension) => void;
-//   files: File[];
-//   setFiles: (files: File[]) => void;
-//   mint: Function;
-//   nft?: {
-//     metadataAccount: StringPublicKey;
-//   };
-// }) => {
-//   const { publicKey, connected } = useWallet();
-//   const history = useHistory();
-//   const { width } = useWindowDimensions();
-//   const [step, setStep] = useState<number>(1);
-//   const [mintData, setMintData] = useState<Array<Object>>([]);
-//   const [confirm, setConfirm] = useState<boolean>(false);
-//   const [startMint, setStartMint] = useState<boolean>(false);
-//   const [creators, setCreators] = useState<Array<UserValue>>([]);
-//   const [royalties, setRoyalties] = useState<Array<Royalty>>([]);
-//   const [fixedCreators, setFixedCreators] = useState<Array<UserValue>>([]);
-//   useEffect(() => {
-//     if (publicKey) {
-//       const key = publicKey.toBase58();
-//       const addr = process.env.NEXT_PUBLIC_STORE_OWNER_ADDRESS;
-//       const ownerKey = `${addr}`;//`F${addr?.substr(0, addr.length - 1)}`;
-//       let creatorlist = [{
-//         key,
-//         label: shortenAddress(key),
-//         value: key,
-//       }];
-//       if (key !== ownerKey)
-//         creatorlist.push({
-//           key: ownerKey,
-//           label: shortenAddress(ownerKey),
-//           value: ownerKey,
-//         });
-//       setFixedCreators(creatorlist);
-//     }
-//   }, [connected, setCreators]);
-//   useEffect(() => {
-//     setStep(1);
-//     setStartMint(false);
-//     setNeedMetadataUpdate(false);
-//     setConfirm(false);
-//     setRoyalties(
-//       [...fixedCreators, ...creators].map(creator => ({
-//         creatorKey: creator.key,
-//         amount: Math.trunc(100 / [...fixedCreators, ...creators].length),
-//       })),
-//     );
-//   }, [creators, fixedCreators]);
+const PremintStep = (props: {
+  attributes: IMetadataExtension;
+  setAttributes: (attr: IMetadataExtension) => void;
+  files: File[];
+  setFiles: (files: File[]) => void;
+  mint: Function;
+  nft?: {
+    metadataAccount: StringPublicKey;
+  };
+}) => {
+  const { publicKey, connected } = useWallet();
+  const history = useHistory();
+  const { width } = useWindowDimensions();
+  const [step, setStep] = useState<number>(1);
+  const [mintData, setMintData] = useState<Array<Object>>([]);
+  const [confirm, setConfirm] = useState<boolean>(false);
+  const [startMint, setStartMint] = useState<boolean>(false);
+  const [creators, setCreators] = useState<Array<UserValue>>([]);
+  const [royalties, setRoyalties] = useState<Array<Royalty>>([]);
+  const [fixedCreators, setFixedCreators] = useState<Array<UserValue>>([]);
+  useEffect(() => {
+    if (publicKey) {
+      const key = publicKey.toBase58();
+      const addr = process.env.NEXT_PUBLIC_STORE_OWNER_ADDRESS;
+      const ownerKey = `${addr}`;//`F${addr?.substr(0, addr.length - 1)}`;
+      let creatorlist = [{
+        key,
+        label: shortenAddress(key),
+        value: key,
+      }];
+      if (key !== ownerKey)
+        creatorlist.push({
+          key: ownerKey,
+          label: shortenAddress(ownerKey),
+          value: ownerKey,
+        });
+      setFixedCreators(creatorlist);
+    }
+  }, [connected, setCreators]);
+  useEffect(() => {
+    setStep(1);
+    setStartMint(false);
+    setNeedMetadataUpdate(false);
+    setConfirm(false);
+    setRoyalties(
+      [...fixedCreators, ...creators].map(creator => ({
+        creatorKey: creator.key,
+        amount: Math.trunc(100 / [...fixedCreators, ...creators].length),
+      })),
+    );
+  }, [creators, fixedCreators]);
 
-//   useEffect(() => {
-//     if (!royalties.length) return;
-//     if (!confirm) return;
-//     if (!startMint) handlePay();
-//   }, [royalties, confirm]);
+  useEffect(() => {
+    if (!royalties.length) return;
+    if (!confirm) return;
+    if (!startMint) handlePay();
+  }, [royalties, confirm]);
 
-//   useEffect(() => {
-//     if (!royalties.length) return;
-//     if (!startMint) return;
-//     console.log('--> Start mint')
-//     func();
-//   }, [props.attributes]);
+  useEffect(() => {
+    if (!royalties.length) return;
+    if (!startMint) return;
+    console.log('--> Start mint')
+    func();
+  }, [props.attributes]);
 
-//   useEffect(() => {
-//     if (!startMint) return;
-//     if (step - 1 >= mintData.length) {
-//       console.log('Error out of index while preminting');
-//       return;
-//     }
-//     console.log('--> premint data');
-//     console.log(mintData[step - 1]);
-//     premint(mintData[step - 1]);
-//   }, [startMint, step]);
+  useEffect(() => {
+    if (!startMint) return;
+    if (step - 1 >= mintData.length) {
+      console.log('Error out of index while preminting');
+      return;
+    }
+    console.log('--> premint data');
+    console.log(mintData[step - 1]);
+    premint(mintData[step - 1]);
+  }, [startMint, step]);
   
-//   const func = async () => {
-//     try {
-//       await props.mint(true);
-//       await sleep(4000);
-//     } catch {
-//       // history.push('/art/create/0');
-//       // setNeedMetadataUpdate(false);
-//     } finally {
-//       if (step === 9) {
-//         setNeedMetadataUpdate(true);
-//         history.push('/');
-//       }
-//       setStep(step + 1);
-//     }
-//   };
+  const func = async () => {
+    try {
+      await props.mint(true);
+      await sleep(4000);
+    } catch {
+      // history.push('/art/create/0');
+      // setNeedMetadataUpdate(false);
+    } finally {
+      if (step === 9) {
+        setNeedMetadataUpdate(true);
+        history.push('/');
+      }
+      setStep(step + 1);
+    }
+  };
 
-//   const premint = async (resData) => {
-//     const imageUrl = `${baseURL}/${resData.image}`;
-//     try {
-//       const response = await fetch(imageUrl);
-//       const blob = await response.blob();
-//       const imageFile = new File([blob], resData.image, { type: blob.type });
-//       const nftAttr = resData.attributes;
-//       nftAttr.push({trait_type: 'rarity', value: resData.rarity});
+  const premint = async (resData) => {
+    const imageUrl = `${baseURL}/${resData.image}`;
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const imageFile = new File([blob], resData.image, { type: blob.type });
+      const nftAttr = resData.attributes;
+      nftAttr.push({trait_type: 'rarity', value: resData.rarity});
       
-//       axios.post(`${baseURL}/api/remove`, {name: resData.image}).then(() => {});
+      axios.post(`${baseURL}/api/remove`, {name: resData.image}).then(() => {});
 
-//       if (step === 7) {
-//         console.log(`===> ${step} is preminting`);
-//       } else if (step === 9) {
-//         setNeedMetadataUpdate(true);
-//         history.push('/');
-//         return;
-//       } else {
-//         setStep(step + 1);
-//         return;
-//       };
+      // if (step === 7) {
+      //   console.log(`===> ${step} is preminting`);
+      // } else if (step === 9) {
+      //   setNeedMetadataUpdate(true);
+      //   history.push('/');
+      //   return;
+      // } else {
+      //   setStep(step + 1);
+      //   return;
+      // };
 
-//       const creatorStructs: Creator[] = [
-//         ...fixedCreators,
-//         ...creators,
-//       ].map(
-//         c =>
-//           new Creator({
-//             address: c.value,
-//             verified: c.value === publicKey?.toBase58(),
-//             share:
-//               royalties.find(r => r.creatorKey === c.value)?.amount ||
-//               Math.round(100 / royalties.length),
-//           }),
-//       );
+      const creatorStructs: Creator[] = [
+        ...fixedCreators,
+        ...creators,
+      ].map(
+        c =>
+          new Creator({
+            address: c.value,
+            verified: c.value === publicKey?.toBase58(),
+            share:
+              royalties.find(r => r.creatorKey === c.value)?.amount ||
+              Math.round(100 / royalties.length),
+          }),
+      );
 
-//       const share = creatorStructs.reduce(
-//         (acc, el) => (acc += el.share),
-//         0,
-//       );
-//       if (share > 100 && creatorStructs.length) {
-//         creatorStructs[0].share -= share - 100;
-//       }
-//       props.setFiles([imageFile, undefined].filter(f => f) as File[]);
-//       props.setAttributes({
-//         ...props.attributes,
-//         name: resData.name,
-//         properties: {
-//           ...props.attributes.properties,
-//           category: MetadataCategory.Image,
-//           files: [imageFile, undefined, undefined]
-//           .filter(f => f)
-//           .map(f => {
-//             const uri = typeof f === 'string' ? f : f?.name || '';
-//             const type =
-//               typeof f === 'string' || !f
-//                 ? 'unknown'
-//                 : f.type || getLast(f.name.split('.')) || 'unknown';
+      const share = creatorStructs.reduce(
+        (acc, el) => (acc += el.share),
+        0,
+      );
+      if (share > 100 && creatorStructs.length) {
+        creatorStructs[0].share -= share - 100;
+      }
+      props.setFiles([imageFile, undefined].filter(f => f) as File[]);
+      props.setAttributes({
+        ...props.attributes,
+        name: resData.name,
+        properties: {
+          ...props.attributes.properties,
+          category: MetadataCategory.Image,
+          files: [imageFile, undefined, undefined]
+          .filter(f => f)
+          .map(f => {
+            const uri = typeof f === 'string' ? f : f?.name || '';
+            const type =
+              typeof f === 'string' || !f
+                ? 'unknown'
+                : f.type || getLast(f.name.split('.')) || 'unknown';
 
-//             return {
-//               uri,
-//               type,
-//             } as MetadataFile;
-//           }),
-//         },
-//         image: imageFile?.name || '',
-//         animation_url: '',
-//         creators: creatorStructs,
-//         attributes: nftAttr,
-//       });
-//     } catch (e) {
-//       console.log('custom image is not generated yet');
-//     }
-//   }
+            return {
+              uri,
+              type,
+            } as MetadataFile;
+          }),
+        },
+        image: imageFile?.name || '',
+        animation_url: '',
+        creators: creatorStructs,
+        attributes: nftAttr,
+      });
+    } catch (e) {
+      console.log('custom image is not generated yet');
+    }
+  }
 
-//   const handlePay = () => {
-//     try {
-//       axios.post(`${baseURL}/api/generate-premint`).then( async (response) => {
-//         console.log('random pog generated', response)
-//         const resData = response.data.result;
-//         if ( resData === undefined) return;
-//         setMintData(resData);
-//         setStartMint(true);
-//       });
-//     } catch (e) {
-//       console.log("Couldn't connect to api server");
-//     }
-//   };
+  const handlePay = () => {
+    try {
+      axios.post(`${baseURL}/api/generate-premint`).then( async (response) => {
+        console.log('random pog generated', response)
+        const resData = response.data.result;
+        if ( resData === undefined) return;
+        setMintData(resData);
+        setStartMint(true);
+      });
+    } catch (e) {
+      console.log("Couldn't connect to api server");
+    }
+  };
 
-//   return (
-//     <>
-//       <Layout style={{ margin: 0, marginTop: 30, alignItems: 'center', textAlign: 'center', }}>
-//         { !confirm ? (
-//           <>
-//             <p>
-//             Are you sure? This will post Solana Pogs to mainnet and pre-mint Sol pogs!
-//             </p>
-//             <p>
-//               <Button
-//                 className="app-btn"
-//                 type="primary"
-//                 style={{ marginRight: '1rem' }}
-//                 onClick={() => setConfirm(true)}
-//               >
-//                 Continue
-//               </Button>
-//               <Button
-//                 onClick={() => history.push('/admin')}
-//               >
-//                 Cancel
-//               </Button>
-//             </p>
-//             <Row style={{ paddingTop: 50, width: '100%' }}>
-//               <Col span={24}>
-//                 <Steps
-//                   progressDot
-//                   direction={width > 768 ? 'horizontal' : 'vertical'}
-//                   current={step}
-//                   style={{
-//                     width: 'fit-content',
-//                     margin: '0 auto 30px auto',
-//                     overflowX: 'auto',
-//                     maxWidth: '100%',
-//                   }}
-//                 >
-//                   <Step title="Init" />
-//                   <Step title="1th" />
-//                   <Step title="2th" />
-//                   <Step title="3th" />
-//                   <Step title="4th" />
-//                   <Step title="5th" />
-//                   <Step title="6th" />
-//                   <Step title="7th" />
-//                   <Step title="8th" />
-//                   <Step title="9th" />
-//                 </Steps>
-//               </Col>
-//             </Row>
-//           </>
-//         ) : (
-//           <>
-//             <p>
-//             IMPORTANT: Do not leave this page.<br />You will need to approve again to pre-mint the {step}th Custom Pog.
-//             </p>
-//             <Row style={{ paddingTop: 50, width: '100%' }}>
-//               <Col span={24}>
-//                 <Steps
-//                   progressDot
-//                   direction={width > 768 ? 'horizontal' : 'vertical'}
-//                   current={step}
-//                   style={{
-//                     width: 'fit-content',
-//                     margin: '0 auto 30px auto',
-//                     overflowX: 'auto',
-//                     maxWidth: '100%',
-//                   }}
-//                 >
-//                   <Step title="Init" />
-//                   <Step title="1th" />
-//                   <Step title="2th" />
-//                   <Step title="3th" />
-//                   <Step title="4th" />
-//                   <Step title="5th" />
-//                   <Step title="6th" />
-//                   <Step title="7th" />
-//                   <Step title="8th" />
-//                   <Step title="9th" />
-//                 </Steps>
-//               </Col>
-//             </Row>
-//           </>
-//         )}
-//       </Layout>
-//     </>
-//   );
-// };
+  return (
+    <>
+      <Layout style={{ margin: 0, marginTop: 30, alignItems: 'center', textAlign: 'center', }}>
+        { !confirm ? (
+          <>
+            <p>
+            Are you sure? This will post Solana Pogs to mainnet and pre-mint Sol pogs!
+            </p>
+            <p>
+              <Button
+                className="app-btn"
+                type="primary"
+                style={{ marginRight: '1rem' }}
+                onClick={() => setConfirm(true)}
+              >
+                Continue
+              </Button>
+              <Button
+                onClick={() => history.push('/admin')}
+              >
+                Cancel
+              </Button>
+            </p>
+            <Row style={{ paddingTop: 50, width: '100%' }}>
+              <Col span={24}>
+                <Steps
+                  progressDot
+                  direction={width > 768 ? 'horizontal' : 'vertical'}
+                  current={step}
+                  style={{
+                    width: 'fit-content',
+                    margin: '0 auto 30px auto',
+                    overflowX: 'auto',
+                    maxWidth: '100%',
+                  }}
+                >
+                  <Step title="Init" />
+                  <Step title="1th" />
+                  <Step title="2th" />
+                  <Step title="3th" />
+                  <Step title="4th" />
+                  <Step title="5th" />
+                  <Step title="6th" />
+                  <Step title="7th" />
+                  <Step title="8th" />
+                  <Step title="9th" />
+                </Steps>
+              </Col>
+            </Row>
+          </>
+        ) : (
+          <>
+            <p>
+            IMPORTANT: Do not leave this page.<br />You will need to approve again to pre-mint the {step}th Custom Pog.
+            </p>
+            <Row style={{ paddingTop: 50, width: '100%' }}>
+              <Col span={24}>
+                <Steps
+                  progressDot
+                  direction={width > 768 ? 'horizontal' : 'vertical'}
+                  current={step}
+                  style={{
+                    width: 'fit-content',
+                    margin: '0 auto 30px auto',
+                    overflowX: 'auto',
+                    maxWidth: '100%',
+                  }}
+                >
+                  <Step title="Init" />
+                  <Step title="1th" />
+                  <Step title="2th" />
+                  <Step title="3th" />
+                  <Step title="4th" />
+                  <Step title="5th" />
+                  <Step title="6th" />
+                  <Step title="7th" />
+                  <Step title="8th" />
+                  <Step title="9th" />
+                </Steps>
+              </Col>
+            </Row>
+          </>
+        )}
+      </Layout>
+    </>
+  );
+};

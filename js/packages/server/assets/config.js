@@ -394,7 +394,7 @@ const layers = [
       ]
     },
     has: {
-      hasVariety: true,
+      hasVariety1: true,
       0: {
         location: `${dir}/symbols/has/0/`,
         elements: [

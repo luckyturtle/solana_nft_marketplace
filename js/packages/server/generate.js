@@ -10,11 +10,11 @@ ctx.fillRect(0, 0, width, height);
 let data = {};
 
 const saveLayer = async (_canvas, _edition, _canvas_pog) => {
-  await fs.writeFileSync(`./assets/temp/${_edition}_pog.png`, _canvas_pog.toBuffer("image/png"));
-  await fs.writeFileSync(`./assets/temp/${_edition}.png`, _canvas.toBuffer("image/png"));
+  fs.writeFileSync(`./assets/temp/${_edition}_pog.png`, _canvas_pog.toBuffer("image/png"));
+  fs.writeFileSync(`./assets/temp/${_edition}.png`, _canvas.toBuffer("image/png"));
 };
 
-const drawLayer = async (_layer, _edition, data, aura, type, symbol, variety) => {
+const drawLayer = async (_layer, _edition, data, aura, type, symbol, variety, variety1) => {
   let parent = _layer;
   let rarity = 1;
   while(parent.hasAura || parent.hasType || parent.hasSymbol || parent.hasVariety){
@@ -32,6 +32,10 @@ const drawLayer = async (_layer, _edition, data, aura, type, symbol, variety) =>
     }
     if(parent.hasVariety){
       parent = parent[variety];
+      rarity *= 0.625;
+    }
+    if(parent.hasVariety1){
+      parent = parent[variety1];
       rarity *= 0.625;
     }
   }
@@ -61,8 +65,9 @@ const drawLayer = async (_layer, _edition, data, aura, type, symbol, variety) =>
       _layer.size.width,
       _layer.size.height
     );
-  else
+  else {
     ctx_pog.clearRect(0, 0, canvas.width, canvas.height);
+  }
   saveLayer(canvas, _edition, canvas_pog);
 };
 
@@ -74,6 +79,7 @@ const generateArt = () => {
     let symbol = Math.random() > 0.1 ? 'has' : 'none';
     let type = Math.random() > 0.9 ? 'slammer': 'pog';
     let variety = Math.floor(Math.random() * 16);
+    let variety1 = Math.floor(Math.random() * 16);
     data = {
       name: type.toUpperCase(),//i.toString(),
       attributes: [
@@ -85,7 +91,7 @@ const generateArt = () => {
       rarity: 1
     };
     layers.forEach(layer => {
-      drawLayer(layer, timestamp, data, aura, type, symbol, variety);
+      drawLayer(layer, timestamp, data, aura, type, symbol, variety, variety1);
     });
   
     // saveData(data, timestamp);//i);
@@ -133,8 +139,8 @@ const generatePremintArt = (index) => {
   return data;
 }
 
-// for (let i = 0; i < 9; i++) {
-  // generateArt();
+// for (let i = 0; i < 100; i++) {
+//   generateArt();
 //   generatePremintArt(i);
 // }
 
