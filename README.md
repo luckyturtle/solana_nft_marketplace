@@ -6,6 +6,7 @@ NFT marketplace Storefront based on Metaplex protocol which built on top of Sola
 
 - **Creating/Minting** non-fungible tokens;
 - and **Visualizing** NFTs in a standard way across wallets and applications.
+- Randomized Artworks are generated with certain rarity from Assets
 - Connect several wallets
 - Fullscreen mode
 - Cross platform
